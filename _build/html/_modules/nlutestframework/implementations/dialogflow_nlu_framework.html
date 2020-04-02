@@ -1,0 +1,369 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlutestframework.implementations.dialogflow_nlu_framework &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>nlutestframework.implementations.dialogflow_nlu_framework</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for nlutestframework.implementations.dialogflow_nlu_framework</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="kn">import</span> <span class="nn">dialogflow_v2</span>
+<span class="kn">from</span> <span class="nn">google.api_core.exceptions</span> <span class="kn">import</span> <span class="n">FailedPrecondition</span><span class="p">,</span> <span class="n">ResourceExhausted</span>
+<span class="kn">from</span> <span class="nn">langcodes</span> <span class="kn">import</span> <span class="n">Language</span>
+
+<span class="kn">from</span> <span class="nn">..nlu_framework</span> <span class="kn">import</span> <span class="n">NLUFramework</span>
+<span class="kn">from</span> <span class="nn">..nlu_intent_rating</span> <span class="kn">import</span> <span class="n">NLUIntentRating</span>
+
+<span class="c1"># Other imports only for the type hints</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">..global_config</span> <span class="kn">import</span> <span class="n">GlobalConfig</span>
+<span class="kn">from</span> <span class="nn">..nlu_data_entry</span> <span class="kn">import</span> <span class="n">NLUDataEntry</span>
+<span class="kn">from</span> <span class="nn">..nlu_data_set</span> <span class="kn">import</span> <span class="n">NLUDataSet</span>
+
+<div class="viewcode-block" id="DialogflowNLUFramework"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/dialogflow_nlu_framework.html#nlutestframework.implementations.dialogflow_nlu_framework.DialogflowNLUFramework">[docs]</a><span class="k">class</span> <span class="nc">DialogflowNLUFramework</span><span class="p">(</span><span class="n">NLUFramework</span><span class="p">):</span>
+    <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="DialogflowNLUFramework.construct"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/dialogflow_nlu_framework.html#nlutestframework.implementations.dialogflow_nlu_framework.DialogflowNLUFramework.construct">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span> <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">_global_config</span><span class="p">:</span> <span class="n">GlobalConfig</span><span class="p">,</span>
+        <span class="n">time_zone</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">project</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nlutestframework&quot;</span><span class="p">,</span>
+        <span class="n">agent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;NLUTestFramework&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            _global_config: Global configuration for the whole test framework.</span>
+<span class="sd">            time_zone: The time zone, e.g. Europe/Berlin. See https://www.iana.org/time-zones for</span>
+<span class="sd">                the list of possible values.</span>
+<span class="sd">            project: The name of the Dialogflow project. Defaults to &quot;nlutestframework&quot;.</span>
+<span class="sd">            agent: The name of the Dialogflow agent. Defaults to &quot;NLUTestFramework&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__time_zone</span> <span class="o">=</span> <span class="n">time_zone</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__project</span>   <span class="o">=</span> <span class="n">project</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__agent</span>     <span class="o">=</span> <span class="n">agent</span>
+
+        <span class="c1"># Create the various clients to interact with the Dialogflow API</span>
+        <span class="n">clients_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__agents_client</span>   <span class="o">=</span> <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">AgentsClient</span><span class="p">(</span><span class="o">**</span><span class="n">clients_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__intents_client</span>  <span class="o">=</span> <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">IntentsClient</span><span class="p">(</span><span class="o">**</span><span class="n">clients_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__sessions_client</span> <span class="o">=</span> <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">SessionsClient</span><span class="p">(</span><span class="o">**</span><span class="n">clients_config</span><span class="p">)</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__removeIntents</span><span class="p">()</span></div>
+
+    <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+<div class="viewcode-block" id="DialogflowNLUFramework.prepareDataSet"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/dialogflow_nlu_framework.html#nlutestframework.implementations.dialogflow_nlu_framework.DialogflowNLUFramework.prepareDataSet">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">prepareDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_set</span><span class="p">:</span> <span class="n">NLUDataSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="o">=</span> <span class="n">Language</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_set</span><span class="o">.</span><span class="n">language</span><span class="p">)</span><span class="o">.</span><span class="n">simplify_script</span><span class="p">()</span><span class="o">.</span><span class="n">to_tag</span><span class="p">()</span>
+
+        <span class="n">agent_parent_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__agents_client</span><span class="o">.</span><span class="n">project_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__project</span><span class="p">)</span>
+
+        <span class="c1"># The default language code doesn&#39;t really matter as this code always explicitly passes the</span>
+        <span class="c1"># exact language on each step. Still, the default language code HAS to be set and it MUST</span>
+        <span class="c1"># be set to the code that already is the default.</span>
+        <span class="c1"># The following code attempts to retrieve the current agent and to extract the current</span>
+        <span class="c1"># default language code from it.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">default_language_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__agents_client</span><span class="o">.</span><span class="n">get_agent</span><span class="p">(</span>
+                <span class="n">agent_parent_path</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">default_language_code</span>
+        <span class="k">except</span><span class="p">:</span> <span class="c1"># pylint: disable=bare-except</span>
+            <span class="c1"># TODO: Unable to figure out which exact error is raised in case the agent doesn&#39;t</span>
+            <span class="c1"># exist, which is why this code catches any exception that might be raised by the call</span>
+            <span class="c1"># to get_agent.</span>
+            <span class="n">default_language_code</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__agents_client</span><span class="o">.</span><span class="n">set_agent</span><span class="p">(</span><span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Agent</span><span class="p">(</span>
+            <span class="n">parent</span>       <span class="o">=</span> <span class="n">agent_parent_path</span><span class="p">,</span>
+            <span class="n">display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__agent</span><span class="p">,</span>
+            <span class="n">time_zone</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__time_zone</span><span class="p">,</span>
+            <span class="n">default_language_code</span>    <span class="o">=</span> <span class="n">default_language_code</span><span class="p">,</span>
+            <span class="n">supported_language_codes</span> <span class="o">=</span> <span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="p">]</span>
+        <span class="p">))</span></div>
+
+<div class="viewcode-block" id="DialogflowNLUFramework.unprepareDataSet"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/dialogflow_nlu_framework.html#nlutestframework.implementations.dialogflow_nlu_framework.DialogflowNLUFramework.unprepareDataSet">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">unprepareDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__language</span></div>
+
+    <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+<div class="viewcode-block" id="DialogflowNLUFramework.train"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/dialogflow_nlu_framework.html#nlutestframework.implementations.dialogflow_nlu_framework.DialogflowNLUFramework.train">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataEntry</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">intents_parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__intents_client</span><span class="o">.</span><span class="n">project_agent_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__project</span><span class="p">)</span>
+
+        <span class="c1"># Group the training data by intents</span>
+        <span class="n">intent_sentences</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">intent</span><span class="p">:</span> <span class="p">[</span> <span class="n">datum</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">training_data</span> <span class="k">if</span> <span class="n">datum</span><span class="o">.</span><span class="n">intent</span> <span class="o">==</span> <span class="n">intent</span> <span class="p">]</span>
+            <span class="k">for</span> <span class="n">intent</span>
+            <span class="ow">in</span> <span class="p">{</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">training_data</span> <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Convert the training data into the format expected by Dialogflow</span>
+        <span class="c1"># Each intent becomes an object, containing the training data for that specific intent</span>
+        <span class="n">intent_instances</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Intent</span><span class="p">(</span>
+                <span class="n">display_name</span>     <span class="o">=</span> <span class="n">intent</span><span class="p">,</span>
+                <span class="n">ml_disabled</span>      <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># Explicitly don&#39;t disable machine learning</span>
+                <span class="n">training_phrases</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Intent</span><span class="o">.</span><span class="n">TrainingPhrase</span><span class="p">(</span>
+                        <span class="nb">type</span>  <span class="o">=</span> <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Intent</span><span class="o">.</span><span class="n">TrainingPhrase</span><span class="o">.</span><span class="n">Type</span><span class="o">.</span><span class="n">EXAMPLE</span><span class="p">,</span>
+                        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span> <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Intent</span><span class="o">.</span><span class="n">TrainingPhrase</span><span class="o">.</span><span class="n">Part</span><span class="p">(</span>
+                            <span class="n">text</span><span class="o">=</span><span class="n">datum</span><span class="o">.</span><span class="n">sentence</span>
+                        <span class="p">)</span> <span class="p">]</span>
+                    <span class="p">)</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span>
+                <span class="p">]</span>
+            <span class="p">)</span> <span class="k">for</span> <span class="n">intent</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">intent_sentences</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Manually add a fallback intent to represent the None-intent</span>
+        <span class="n">intent_instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Intent</span><span class="p">(</span>
+            <span class="n">display_name</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span><span class="p">,</span>
+            <span class="n">is_fallback</span>  <span class="o">=</span> <span class="kc">True</span>
+        <span class="p">))</span>
+
+        <span class="n">intent_batch</span> <span class="o">=</span> <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">IntentBatch</span><span class="p">(</span><span class="n">intents</span><span class="o">=</span><span class="n">intent_instances</span><span class="p">)</span>
+
+        <span class="c1"># Create the intents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__intents_client</span><span class="o">.</span><span class="n">batch_update_intents</span><span class="p">(</span>
+            <span class="n">intents_parent</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__language</span><span class="p">,</span>
+            <span class="n">intent_batch_inline</span><span class="o">=</span><span class="n">intent_batch</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span> <span class="c1"># TODO: Replace .result() with a non-blocking alternative</span>
+
+        <span class="c1"># Train the agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__agents_client</span><span class="o">.</span><span class="n">train_agent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__agents_client</span><span class="o">.</span><span class="n">project_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__project</span><span class="p">))</span><span class="o">.</span><span class="n">result</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DialogflowNLUFramework.rateIntents"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/dialogflow_nlu_framework.html#nlutestframework.implementations.dialogflow_nlu_framework.DialogflowNLUFramework.rateIntents">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">rateIntents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NLUIntentRating</span><span class="p">:</span>
+        <span class="c1"># The session id is randomized so that the context-mechanics of Dialogflow don&#39;t mess with</span>
+        <span class="c1"># the result. The maximum length allowed by Dialogflow is 36 bytes.</span>
+        <span class="n">session_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">36</span><span class="p">))</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sessions_client</span><span class="o">.</span><span class="n">session_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__project</span><span class="p">,</span> <span class="n">session_id</span><span class="p">)</span>
+
+        <span class="n">text_input</span>  <span class="o">=</span> <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">sentence</span><span class="p">,</span> <span class="n">language_code</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__language</span><span class="p">)</span>
+        <span class="n">query_input</span> <span class="o">=</span> <span class="n">dialogflow_v2</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">QueryInput</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">text_input</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">detect_intent_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sessions_client</span><span class="o">.</span><span class="n">detect_intent</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">query_input</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="n">FailedPrecondition</span><span class="p">:</span>
+                <span class="c1"># TODO: Remove this as soon as the problem described in</span>
+                <span class="c1"># https://github.com/googleapis/dialogflow-python-client-v2/issues/171 is resolved.</span>
+                <span class="c1"># Some race condition in the Dialogflow API causes this exception to be raised</span>
+                <span class="c1"># nondeterministically. Waiting a bit usually makes the issue disappear.</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ResourceExhausted</span><span class="p">:</span>
+                <span class="c1"># The code managed to exceed the quota for text queries. Wait a bit and try again.</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="n">intent</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">detect_intent_response</span><span class="o">.</span><span class="n">query_result</span><span class="o">.</span><span class="n">intent</span><span class="o">.</span><span class="n">is_fallback</span> <span class="k">else</span>
+            <span class="n">detect_intent_response</span><span class="o">.</span><span class="n">query_result</span><span class="o">.</span><span class="n">intent</span><span class="o">.</span><span class="n">display_name</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">NLUIntentRating</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="p">[</span> <span class="p">(</span>
+            <span class="n">intent</span><span class="p">,</span>
+            <span class="n">detect_intent_response</span><span class="o">.</span><span class="n">query_result</span><span class="o">.</span><span class="n">intent_detection_confidence</span>
+        <span class="p">)</span> <span class="p">])</span></div>
+
+<div class="viewcode-block" id="DialogflowNLUFramework.cleanupTraining"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/dialogflow_nlu_framework.html#nlutestframework.implementations.dialogflow_nlu_framework.DialogflowNLUFramework.cleanupTraining">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">cleanupTraining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__removeIntents</span><span class="p">()</span></div>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__removeIntents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove all intents from the Dialogflow agent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">intents_parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__intents_client</span><span class="o">.</span><span class="n">project_agent_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__project</span><span class="p">)</span>
+
+        <span class="n">intents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__intents_client</span><span class="o">.</span><span class="n">list_intents</span><span class="p">(</span><span class="n">intents_parent</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">intents</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__intents_client</span><span class="o">.</span><span class="n">batch_delete_intents</span><span class="p">(</span><span class="n">intents_parent</span><span class="p">,</span> <span class="n">intents</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

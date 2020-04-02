@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlutestframework.implementations.luis_nlu_framework &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>nlutestframework.implementations.luis_nlu_framework</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for nlutestframework.implementations.luis_nlu_framework</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">..nlu_intent_rating</span> <span class="kn">import</span> <span class="n">NLUIntentRating</span>
+<span class="kn">from</span> <span class="nn">..optimizable_nlu_framework</span> <span class="kn">import</span> <span class="n">OptimizableNLUFramework</span>
+
+<span class="c1"># API for LUIS</span>
+<span class="kn">from</span> <span class="nn">azure.cognitiveservices.language.luis.authoring</span> <span class="kn">import</span> <span class="n">LUISAuthoringClient</span>
+<span class="kn">from</span> <span class="nn">azure.cognitiveservices.language.luis.runtime</span> <span class="kn">import</span> <span class="n">LUISRuntimeClient</span>
+<span class="kn">from</span> <span class="nn">msrest.authentication</span> <span class="kn">import</span> <span class="n">CognitiveServicesCredentials</span>
+
+<span class="c1"># Language tag handling</span>
+<span class="kn">from</span> <span class="nn">langcodes</span> <span class="kn">import</span> <span class="n">Language</span>
+
+<span class="c1"># Other imports only for the type hints</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">..global_config</span> <span class="kn">import</span> <span class="n">GlobalConfig</span>
+<span class="kn">from</span> <span class="nn">..nlu_data_entry</span> <span class="kn">import</span> <span class="n">NLUDataEntry</span>
+<span class="kn">from</span> <span class="nn">..nlu_data_set</span> <span class="kn">import</span> <span class="n">NLUDataSet</span>
+
+<div class="viewcode-block" id="LUISNLUFramework"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/luis_nlu_framework.html#nlutestframework.implementations.luis_nlu_framework.LUISNLUFramework">[docs]</a><span class="k">class</span> <span class="nc">LUISNLUFramework</span><span class="p">(</span><span class="n">OptimizableNLUFramework</span><span class="p">):</span>
+    <span class="c1"># LUIS requires assigning a version to each app. As this code doesn&#39;t require any versioning of</span>
+    <span class="c1"># the app, a placeholder/fake version is used.</span>
+    <span class="n">FAKE_VERSION</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+
+    <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="LUISNLUFramework.construct"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/luis_nlu_framework.html#nlutestframework.implementations.luis_nlu_framework.LUISNLUFramework.construct">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span> <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">_global_config</span><span class="p">:</span> <span class="n">GlobalConfig</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">authoring_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">runtime_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            _global_config: Global configuration for the whole test framework.</span>
+<span class="sd">            endpoint: The endpoint to use to access LUIS, e.g.</span>
+<span class="sd">                `https://westeurope.api.cognitive.microsoft.com/`.</span>
+<span class="sd">            authoring_key: The access key for the LUIS authoring API.</span>
+<span class="sd">            runtime_key: The access key for the LUIS runtime API. Defaults to the authoring key if</span>
+<span class="sd">                omitted or set to :obj:`None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span> <span class="o">=</span> <span class="n">LUISAuthoringClient</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">CognitiveServicesCredentials</span><span class="p">(</span><span class="n">authoring_key</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__runtime_client</span> <span class="o">=</span> <span class="n">LUISRuntimeClient</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">CognitiveServicesCredentials</span><span class="p">(</span><span class="n">authoring_key</span> <span class="k">if</span> <span class="n">runtime_key</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">runtime_key</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_prepareDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_set</span><span class="p">:</span> <span class="n">NLUDataSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span><span class="o">.</span><span class="n">apps</span><span class="o">.</span><span class="n">add</span><span class="p">({</span>
+            <span class="s2">&quot;name&quot;</span>    <span class="p">:</span> <span class="s2">&quot;NLUTestFramework&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;culture&quot;</span> <span class="p">:</span> <span class="n">Language</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_set</span><span class="o">.</span><span class="n">language</span><span class="p">)</span><span class="o">.</span><span class="n">simplify_script</span><span class="p">()</span><span class="o">.</span><span class="n">to_tag</span><span class="p">(),</span>
+            <span class="s2">&quot;initial_version_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">FAKE_VERSION</span>
+        <span class="p">})</span>
+
+<div class="viewcode-block" id="LUISNLUFramework.unprepareDataSet"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/luis_nlu_framework.html#nlutestframework.implementations.luis_nlu_framework.LUISNLUFramework.unprepareDataSet">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">unprepareDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span><span class="o">.</span><span class="n">apps</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span></div>
+
+    <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+<div class="viewcode-block" id="LUISNLUFramework.train"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/luis_nlu_framework.html#nlutestframework.implementations.luis_nlu_framework.LUISNLUFramework.train">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataEntry</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fake_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">FAKE_VERSION</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__intent_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">intent</span> <span class="ow">in</span> <span class="p">{</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">training_data</span> <span class="p">}:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__intent_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">add_intent</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span><span class="p">,</span>
+                <span class="n">fake_version</span><span class="p">,</span>
+                <span class="n">intent</span>
+            <span class="p">))</span>
+
+        <span class="c1"># Prepare the examples</span>
+        <span class="n">examples</span> <span class="o">=</span> <span class="p">[</span> <span class="p">{</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sentence</span><span class="p">,</span> <span class="s2">&quot;intent_name&quot;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="p">}</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">training_data</span> <span class="p">]</span>
+
+        <span class="c1"># Add all examples, in batches of 100</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">examples</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">examples</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">100</span><span class="p">:(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span><span class="p">,</span> <span class="n">fake_version</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+
+        <span class="c1"># Train the model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">train_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span><span class="p">,</span> <span class="n">fake_version</span><span class="p">)</span>
+
+        <span class="c1"># Wait for the training to complete</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># get_status returns a list of training statuses, one for each model.</span>
+            <span class="n">statuses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span><span class="p">,</span> <span class="n">fake_version</span><span class="p">)</span>
+
+            <span class="n">unpacked_statuses</span> <span class="o">=</span> <span class="p">[</span> <span class="n">x</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">status</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">statuses</span> <span class="p">]</span>
+
+            <span class="c1"># Check if any models are still training/queued for training</span>
+            <span class="k">if</span> <span class="s2">&quot;Queued&quot;</span> <span class="ow">in</span> <span class="n">unpacked_statuses</span> <span class="ow">or</span> <span class="s2">&quot;InProgress&quot;</span> <span class="ow">in</span> <span class="n">unpacked_statuses</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Get the list of models whose&#39; training failed and the reasons of their failure</span>
+                <span class="n">failed_models</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;Fail&quot;</span><span class="p">,</span> <span class="n">statuses</span><span class="p">)</span>
+                <span class="n">failure_reasons</span> <span class="o">=</span> <span class="p">[</span> <span class="n">x</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">failure_reason</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">failed_models</span> <span class="p">]</span>
+
+                <span class="c1"># Check if any of the models failed training</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">failure_reasons</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># TODO: Better formating of failure_reasons.</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Training failed: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">failure_reasons</span><span class="p">))</span>
+
+                <span class="k">break</span>
+
+        <span class="c1"># Publish the trained app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span><span class="o">.</span><span class="n">apps</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span><span class="p">,</span> <span class="n">fake_version</span><span class="p">,</span> <span class="n">is_staging</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_rateIntents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NLUIntentRating</span><span class="p">:</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__runtime_client</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">get_slot_prediction</span><span class="p">(</span>
+            <span class="n">app_id</span>             <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span><span class="p">,</span>
+            <span class="n">slot_name</span>          <span class="o">=</span> <span class="s2">&quot;staging&quot;</span><span class="p">,</span>
+            <span class="n">prediction_request</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">sentence</span> <span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">intents</span>
+
+        <span class="k">return</span> <span class="n">NLUIntentRating</span><span class="p">(</span>
+            <span class="n">sentence</span><span class="p">,</span>
+            <span class="p">[</span> <span class="p">(</span><span class="n">intent</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">score</span><span class="p">)</span> <span class="k">for</span> <span class="n">intent</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">prediction</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="p">]</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="LUISNLUFramework.cleanupTraining"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/luis_nlu_framework.html#nlutestframework.implementations.luis_nlu_framework.LUISNLUFramework.cleanupTraining">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">cleanupTraining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Delete all intents and the corresponding utterances</span>
+        <span class="k">for</span> <span class="n">intent_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__intent_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__authoring_client</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">delete_intent</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__app_id</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">FAKE_VERSION</span><span class="p">,</span>
+                <span class="n">intent_id</span><span class="p">,</span>
+                <span class="n">delete_utterances</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__intent_ids</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

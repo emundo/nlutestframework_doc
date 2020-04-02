@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlutestframework.parallel_exception &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>nlutestframework.parallel_exception</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for nlutestframework.parallel_exception</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+
+<span class="c1"># Other imports only for the type hints</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="n">O</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;O&quot;</span><span class="p">)</span> <span class="c1"># pylint: disable=invalid-name</span>
+<span class="n">R</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">)</span> <span class="c1"># pylint: disable=invalid-name</span>
+
+<div class="viewcode-block" id="ParallelException"><a class="viewcode-back" href="../../sources/nlutestframework/parallel_exception.html#nlutestframework.parallel_exception.ParallelException">[docs]</a><span class="k">class</span> <span class="nc">ParallelException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception thrown by :func:`~nlutestframework.parallel_exception.run_in_parallel`. Contains</span>
+<span class="sd">    information about exceptions thrown during the operation and the rollback phases.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ParallelException.__init__"><a class="viewcode-back" href="../../sources/nlutestframework/parallel_exception.html#nlutestframework.parallel_exception.ParallelException.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">operation_exceptions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">,</span> <span class="n">O</span><span class="p">]],</span>
+        <span class="n">rollback_exceptions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">,</span> <span class="n">O</span><span class="p">,</span> <span class="n">R</span><span class="p">]]</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            message: The exception message.</span>
+<span class="sd">            operation_exceptions: Information about problems during the operation phase. The second</span>
+<span class="sd">                entry denotes the object.</span>
+<span class="sd">            rollback_exceptions: Information about problems during the rollback phase. The second</span>
+<span class="sd">                entry denotes the object and the third entry denotes the result of the operation</span>
+<span class="sd">                phase for that object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__operation_exceptions</span> <span class="o">=</span> <span class="n">operation_exceptions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__rollback_exceptions</span>  <span class="o">=</span> <span class="n">rollback_exceptions</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">operation_exceptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">,</span> <span class="n">O</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A copy of the list passed to the constructor, not a reference to it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__operation_exceptions</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rollback_exceptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">,</span> <span class="n">O</span><span class="p">,</span> <span class="n">R</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A copy of the list passed to the constructor, not a reference to it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__rollback_exceptions</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">operation_exception_messages</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">exc</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__operation_exceptions</span><span class="p">:</span>
+            <span class="n">operation_exception_messages</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Object </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+
+        <span class="n">rollback_exception_messages</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">exc</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rollback_exceptions</span><span class="p">:</span>
+            <span class="n">rollback_exception_messages</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Object </span><span class="si">{}</span><span class="s2">; Result </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+              <span class="s2">&quot;Exceptions during the operations phase:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="n">operation_exception_messages</span>
+            <span class="o">+</span> <span class="s2">&quot;Exceptions during the rollback phase:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="n">rollback_exception_messages</span>
+        <span class="p">)</span></div>
+
+<span class="c1"># pylint thinks &quot;op&quot; is too short</span>
+<span class="c1"># pylint: disable=invalid-name</span>
+<div class="viewcode-block" id="run_in_parallel"><a class="viewcode-back" href="../../sources/nlutestframework/parallel_exception.html#nlutestframework.parallel_exception.run_in_parallel">[docs]</a><span class="k">async</span> <span class="k">def</span> <span class="nf">run_in_parallel</span><span class="p">(</span>
+    <span class="n">objects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">O</span><span class="p">],</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">O</span><span class="p">],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">R</span><span class="p">]],</span>
+    <span class="n">rollback_op</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">O</span><span class="p">,</span> <span class="n">R</span><span class="p">],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">Any</span><span class="p">]]],</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">R</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the same asynchronous operation on multiple objects in parallel. If the operation fails for</span>
+<span class="sd">    at least one of the objects, run a rollback operation on the objects that succeeded in the</span>
+<span class="sd">    operation. This can be used to implement an &quot;all-or-nothing&quot; mechanism. Either all operations</span>
+<span class="sd">    succeed, or the succeeded operations are rolled back.</span>
+
+<span class="sd">    In case of a failure followed by a rollback, a</span>
+<span class="sd">    :exc:`~nlutestframework.parallel_exception.ParallelException` is raised which contains</span>
+<span class="sd">    information about the problems that led to the rollback and information about problems during</span>
+<span class="sd">    the rollback.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        objects: The objects to run the operation on.</span>
+<span class="sd">        op: The operation to run on each object. The object is passed as the first parameter.</span>
+<span class="sd">        rollback_op: A function which is run once for each object which succeeded in the operation</span>
+<span class="sd">            in case at least one operation failed. Receives two parameters: the result of the</span>
+<span class="sd">            operation and the object. Pass :obj:`None` to skip the rollback-phase.</span>
+<span class="sd">        message: The message to set on the exception that is thrown in case at least one operation</span>
+<span class="sd">            failed and the whole set of operations was rolled back.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A (future, which resolves to a) list containing the result of the operation applied to each</span>
+<span class="sd">        object.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        :exc:`ParallelException`: If at least one operation failed and the whole set of operations</span>
+<span class="sd">            was rolled back.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Run the operation on each object</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">objects</span><span class="p">),</span> <span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Split the pairs into successful and failed</span>
+    <span class="n">succeeded</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="ne">BaseException</span><span class="p">),</span> <span class="nb">zip</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">results</span><span class="p">)))</span>
+    <span class="n">failed</span>    <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span>     <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="ne">BaseException</span><span class="p">),</span> <span class="nb">zip</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">objects</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># If there are no failed objects, return the results</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="n">rollback_failures</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">rollback_op</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Run the rollback operation on the objects that succeeded</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="c1"># mypy ignores the previous check for rollback_op to not be None</span>
+            <span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">rollback_op</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">),</span> <span class="n">succeeded</span><span class="p">),</span> <span class="c1"># type: ignore</span>
+            <span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Unpack the values into triples: (rollback_result, object, operation_result)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">succeeded</span><span class="p">)</span> <span class="p">]</span>
+
+        <span class="c1"># Extract only the failed rollbacks</span>
+        <span class="n">rollback_failures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="ne">BaseException</span><span class="p">),</span> <span class="n">results</span><span class="p">))</span>
+
+    <span class="c1"># Raise an exception containing information about all problems during the operation and the</span>
+    <span class="c1"># rollback phases.</span>
+    <span class="k">raise</span> <span class="n">ParallelException</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">failed</span><span class="p">,</span> <span class="n">rollback_failures</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

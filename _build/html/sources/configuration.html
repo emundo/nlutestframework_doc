@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configuration &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="List of Built-In NLU Frameworks" href="nlu_frameworks.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#global-configuration">Global Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-set-configuration">Data Set Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-configuration">Framework Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#full-configuration">Full Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-files">Configuration Files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/sources/configuration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p>The framework requires three types of configuration:</p>
+<ul class="simple">
+<li><p>Global configuration, as explained <a class="reference internal" href="#configuration-global"><span class="std std-ref">here</span></a></p></li>
+<li><p>Data set configuration, as explained <a class="reference internal" href="#configuration-data-set"><span class="std std-ref">here</span></a></p></li>
+<li><p>Framework configuration, as explained <a class="reference internal" href="#configuration-framework"><span class="std std-ref">here</span></a></p></li>
+</ul>
+<p>The configuration can either be passed to the <code class="xref py py-class docutils literal notranslate"><span class="pre">NLUBenchmarker</span></code> directly or loaded from a <a class="reference internal" href="#configuration-file"><span class="std std-ref">configuration file</span></a>.</p>
+<div class="section" id="global-configuration">
+<span id="configuration-global"></span><h2>Global Configuration<a class="headerlink" href="#global-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Configuration which is global to the test framework. Refer to the <code class="xref py py-meth docutils literal notranslate"><span class="pre">GlobalConfig</span></code> class for supported options.</p>
+</div>
+<div class="section" id="data-set-configuration">
+<span id="configuration-data-set"></span><h2>Data Set Configuration<a class="headerlink" href="#data-set-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Configuration for a single data set. The <a class="reference internal" href="#configuration-full"><span class="std std-ref">full configuration</span></a> may contain multiple of these. Refer to the <code class="xref py py-meth docutils literal notranslate"><span class="pre">NLUDataSet</span></code> class for supported options.</p>
+</div>
+<div class="section" id="framework-configuration">
+<span id="configuration-framework"></span><h2>Framework Configuration<a class="headerlink" href="#framework-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Configuration for a single NLU framework. The <a class="reference internal" href="#configuration-full"><span class="std std-ref">full configuration</span></a> may contain multiple of these. In contrast to the <a class="reference internal" href="#configuration-global"><span class="std std-ref">global configuration</span></a> and the <a class="reference internal" href="#configuration-data-set"><span class="std std-ref">data set configuration</span></a>, the available configuration options vary between implementations. Refer to the <a class="reference internal" href="nlu_frameworks.html"><span class="doc">list of built-in implementations</span></a> for details on the configuration and setup required for each framework.</p>
+</div>
+<div class="section" id="full-configuration">
+<span id="configuration-full"></span><h2>Full Configuration<a class="headerlink" href="#full-configuration" title="Permalink to this headline">¶</a></h2>
+<p>The following example shows the structure of a full configuration:</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;global&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;iterations&quot;</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;data_sets&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;AskUbuntuCorpus&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;nlutestframework.implementations.SimpleJSONDataSet&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;data_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/nlutestframework/data/corpora/AskUbuntuCorpus.json&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;validation_percentage&quot;</span><span class="p">:</span> <span class="mi">50</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;ChatbotCorpus&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;nlutestframework.implementations.SimpleJSONDataSet&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;data_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/nlutestframework/data/corpora/ChatbotCorpus.json&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;validation_percentage&quot;</span><span class="p">:</span> <span class="mi">50</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;WebApplicationsCorpus&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;nlutestframework.implementations.SimpleJSONDataSet&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;data_path&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/nlutestframework/data/corpora/WebApplicationsCorpus.json&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;validation_percentage&quot;</span><span class="p">:</span> <span class="mi">50</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;frameworks&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;Rasa NLU&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;nlutestframework.implementations.RasaNLUFramework&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;pipeline&quot;</span><span class="p">:</span> <span class="s2">&quot;pretrained&quot;</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;Snips NLU&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;nlutestframework.implementations.SnipsNLUFramework&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The configuration is a dictionary which consists of the three sections <code class="docutils literal notranslate"><span class="pre">global</span></code>, <code class="docutils literal notranslate"><span class="pre">data_sets</span></code> and <code class="docutils literal notranslate"><span class="pre">frameworks</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">global</span></code> section simply contains the <a class="reference internal" href="#configuration-global"><span class="std std-ref">global configuration</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">data_sets</span></code> and <code class="docutils literal notranslate"><span class="pre">frameworks</span></code> sections each contain multiple configurations. The keys denote the name of the respective data set or framework, while the values contain the actual configuration. There is one special configuration option, which is common to all data sets and frameworks: the Python-<code class="docutils literal notranslate"><span class="pre">class</span></code> to use for that specific data set or framework.</p>
+</div>
+<div class="section" id="configuration-files">
+<span id="configuration-file"></span><h2>Configuration Files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
+<p>Configuration files contain the same configuration as introduced <a class="reference internal" href="#configuration-full"><span class="std std-ref">above</span></a>, but formatted using YAML.</p>
+<p>Relative paths are converted to absolute paths based on the location of the configuration file.</p>
+<p>For convenience, when refering to classes in the <code class="xref py py-mod docutils literal notranslate"><span class="pre">nlutestframework.implementations</span></code> package, the full package name is not required. For example passing <code class="docutils literal notranslate"><span class="pre">Snips</span></code> as the class for a framework is equivalent to passing <code class="docutils literal notranslate"><span class="pre">nlutestframework.implementations.SnipsNLUFramework</span></code>.</p>
+<p>A full example for a file <code class="docutils literal notranslate"><span class="pre">config.yml</span></code>:</p>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span>
+  <span class="nt">iterations</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="nt">data_sets</span><span class="p">:</span>
+  <span class="nt">AskUbuntuCorpus</span><span class="p">:</span>
+    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SimpleJSON</span>
+    <span class="nt">data_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">../data/corpora/AskUbuntuCorpus.json</span>
+    <span class="nt">validation_percentage</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50</span>
+  <span class="nt">ChatbotCorpus</span><span class="p">:</span>
+    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SimpleJSON</span>
+    <span class="nt">data_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">../data/corpora/ChatbotCorpus.json</span>
+    <span class="nt">validation_percentage</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50</span>
+  <span class="nt">WebApplicationsCorpus</span><span class="p">:</span>
+    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SimpleJSON</span>
+    <span class="nt">data_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">../data/corpora/WebApplicationsCorpus.json</span>
+    <span class="nt">validation_percentage</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="nt">frameworks</span><span class="p">:</span>
+  <span class="nt">Rasa NLU</span><span class="p">:</span>
+    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Rasa</span>
+    <span class="nt">pipeline</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">pretrained</span>
+  <span class="c1">#    optimize_intent_threshold: yes</span>
+  <span class="c1">#    optimizer_iterations: 10</span>
+  <span class="c1">#    optimizer_grid_search_step_size: 0.01</span>
+  <span class="nt">Snips NLU</span><span class="p">:</span>
+    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Snips</span>
+<span class="c1">#    Dialogflow:</span>
+<span class="c1">#      class: Dialogflow</span>
+<span class="c1">#      time_zone: &lt;time_zone_here&gt; # For example: Europe/Berlin</span>
+<span class="c1">#    LUIS:</span>
+<span class="c1">#      class: LUIS</span>
+<span class="c1">#      endpoint: &lt;endpoint_here&gt; # For example: https://westeurope.api.cognitive.microsoft.com/</span>
+<span class="c1">#      authoring_key: &lt;authoring_key_here&gt;</span>
+<span class="c1">#      runtime_key: &lt;runtime_key_here&gt; # Or omit the runtime key to use the authoring key for both</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="nlu_frameworks.html" class="btn btn-neutral float-right" title="List of Built-In NLU Frameworks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

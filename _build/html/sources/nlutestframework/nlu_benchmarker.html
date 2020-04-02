@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlu_benchmarker &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="nlu_data_entry" href="nlu_data_entry.html" />
+    <link rel="prev" title="intent_threshold_optimizer" href="intent_threshold_optimizer.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="package.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="global_config.html">global_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="has_logger.html">has_logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intent_threshold_optimizer.html">intent_threshold_optimizer</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">nlu_benchmarker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlu_data_entry.html">nlu_data_entry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlu_data_set.html">nlu_data_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlu_framework.html">nlu_framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlu_intent_rating.html">nlu_intent_rating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimizable_nlu_framework.html">optimizable_nlu_framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel_exception.html">parallel_exception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serializable.html">serializable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementations/package.html">Package: implementations</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="package.html">nlutestframework</a> &raquo;</li>
+        
+      <li>nlu_benchmarker</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/sources/nlutestframework/nlu_benchmarker.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="nlu-benchmarker">
+<h1>nlu_benchmarker<a class="headerlink" href="#nlu-benchmarker" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker">
+<em class="property">class </em><code class="sig-prename descclassname">nlutestframework.nlu_benchmarker.</code><code class="sig-name descname">NLUBenchmarker</code><span class="sig-paren">(</span><em class="sig-param">logger_title=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="has_logger.html#nlutestframework.has_logger.HasLogger" title="nlutestframework.has_logger.HasLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">nlutestframework.has_logger.HasLogger</span></code></a></p>
+<dl class="method">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.getInstance">
+<em class="property">classmethod </em><code class="sig-name descname">getInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker.getInstance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.getInstance" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker" title="nlutestframework.nlu_benchmarker.NLUBenchmarker"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLUBenchmarker</span></code></a></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The singleton instance of this class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.cancel">
+<code class="sig-name descname">cancel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker.cancel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abort the benchmark gracefully in the next situation possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.confusionMatrixToF1Scores">
+<em class="property">classmethod </em><code class="sig-name descname">confusionMatrixToF1Scores</code><span class="sig-paren">(</span><em class="sig-param">confusion_matrix</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker.confusionMatrixToF1Scores"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.confusionMatrixToF1Scores" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>confusion_matrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – The confusion matrix to calculate F1 scores from.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A mapping from intents to their respective F1 scores.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.run">
+<em class="property">async </em><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">frameworks</em>, <em class="sig-param">data_sets</em>, <em class="sig-param">num_iterations</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measure the performance of each framework on each data set. Outputs a summary about which
+framework performed best on each data set; also generates charts with more details about all
+performances.</p>
+<p>This method guarantees that all frameworks are destroyed before returning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frameworks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="nlu_framework.html#nlutestframework.nlu_framework.NLUFramework" title="nlutestframework.nlu_framework.NLUFramework"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLUFramework</span></code></a>]) – The frameworks to benchmark.</p></li>
+<li><p><strong>data_sets</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="nlu_data_set.html#nlutestframework.nlu_data_set.NLUDataSet" title="nlutestframework.nlu_data_set.NLUDataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLUDataSet</span></code></a>]) – The data sets to benchmark on.</p></li>
+<li><p><strong>num_iterations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of iterations to repeat the evaluation process. The result is
+the average over all iterations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.createFrameworks">
+<em class="property">async </em><code class="sig-name descname">createFrameworks</code><span class="sig-paren">(</span><em class="sig-param">global_config</em>, <em class="sig-param">framework_configs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker.createFrameworks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.createFrameworks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and prepare <a class="reference internal" href="nlu_framework.html#nlutestframework.nlu_framework.NLUFramework" title="nlutestframework.nlu_framework.NLUFramework"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLUFramework</span></code></a> s based on
+configuration dictionaries.</p>
+<p>This method guarantees that either all frameworks are created or none of them. That means,
+if something goes wrong in the progress, frameworks that already were created are destroyed
+again.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>global_config</strong> (<a class="reference internal" href="global_config.html#nlutestframework.global_config.GlobalConfig" title="nlutestframework.global_config.GlobalConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalConfig</span></code></a>) – Global configuration for the whole test framework.</p></li>
+<li><p><strong>framework_configs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]]) – A dictionary containing the configuration of the frameworks to
+create. See <a class="reference internal" href="../configuration.html#configuration-framework"><span class="std std-ref">Framework Configuration</span></a> for more information.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="parallel_exception.html#nlutestframework.parallel_exception.ParallelException" title="nlutestframework.parallel_exception.ParallelException"><strong>ParallelException</strong></a> – if at least one framework creation failed.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="nlu_framework.html#nlutestframework.nlu_framework.NLUFramework" title="nlutestframework.nlu_framework.NLUFramework"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLUFramework</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.loadDataSets">
+<em class="property">static </em><code class="sig-name descname">loadDataSets</code><span class="sig-paren">(</span><em class="sig-param">configs</em>, <em class="sig-param">global_ignore_cache=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker.loadDataSets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.loadDataSets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data sets based on the configuration dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]]) – A dictionary containing the configuration of the data sets to load. See
+<a class="reference internal" href="../configuration.html#configuration-data-set"><span class="std std-ref">Data Set Configuration</span></a> for more information.</p></li>
+<li><p><strong>global_ignore_cache</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – A boolean indicating whether caches should be ignored globally.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="nlu_data_set.html#nlutestframework.nlu_data_set.NLUDataSet" title="nlutestframework.nlu_data_set.NLUDataSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLUDataSet</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.runFromConfig">
+<em class="property">async </em><code class="sig-name descname">runFromConfig</code><span class="sig-paren">(</span><em class="sig-param">config</em>, <em class="sig-param">**global_config_override</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker.runFromConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.runFromConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load and run a full benchmark from a single configuration dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]]]) – A dictionary containing the full configuration required to load and run the
+benchmark. See <a class="reference internal" href="../configuration.html#configuration-full"><span class="std std-ref">Full Configuration</span></a> for more information.</p></li>
+<li><p><strong>**global_config_override</strong> – Options to override in the global configuration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.runFromConfigFile">
+<em class="property">async </em><code class="sig-name descname">runFromConfigFile</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">**global_config_override</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_benchmarker.html#NLUBenchmarker.runFromConfigFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.runFromConfigFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load and run a full benchmark from a configuration file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The path to the configuration file. See <a class="reference internal" href="../configuration.html#configuration-file"><span class="std std-ref">Configuration Files</span></a> for more
+information.</p></li>
+<li><p><strong>**global_config_override</strong> – Options to override in the global configuration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>OSError</strong> – in case the config file could not be read due to I/O or other OS-related
+    issues.</p></li>
+<li><p><strong>yaml.YAMLError</strong> – in case the config file contains invalid YAML.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nlutestframework.nlu_benchmarker.NLUBenchmarker.__annotations__">
+<code class="sig-name descname">__annotations__</code><em class="property"> = {'_NLUBenchmarker__instance': typing.ClassVar[ForwardRef('NLUBenchmarker')]}</em><a class="headerlink" href="#nlutestframework.nlu_benchmarker.NLUBenchmarker.__annotations__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="nlu_data_entry.html" class="btn btn-neutral float-right" title="nlu_data_entry" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="intent_threshold_optimizer.html" class="btn btn-neutral float-left" title="intent_threshold_optimizer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,780 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlutestframework.nlu_benchmarker &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>nlutestframework.nlu_benchmarker</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for nlutestframework.nlu_benchmarker</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># This setting prevents cut-off labels in plots created by matplotlib</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rcParams</span><span class="p">;</span> <span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span> <span class="s2">&quot;figure.autolayout&quot;</span><span class="p">:</span> <span class="kc">True</span> <span class="p">});</span> <span class="k">del</span> <span class="n">rcParams</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">.global_config</span> <span class="kn">import</span> <span class="n">GlobalConfig</span>
+<span class="kn">from</span> <span class="nn">.has_logger</span> <span class="kn">import</span> <span class="n">HasLogger</span>
+<span class="kn">from</span> <span class="nn">.parallel_exception</span> <span class="kn">import</span> <span class="n">run_in_parallel</span>
+
+<span class="c1"># Other imports only for the type hints</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">NamedTuple</span>
+<span class="kn">from</span> <span class="nn">.types</span> <span class="kn">import</span> <span class="n">ConfusionMatrix</span><span class="p">,</span> <span class="n">Intent</span><span class="p">,</span> <span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">JSONSerializable</span>
+<span class="kn">from</span> <span class="nn">.nlu_data_set</span> <span class="kn">import</span> <span class="n">NLUDataSet</span>
+<span class="kn">from</span> <span class="nn">.nlu_framework</span> <span class="kn">import</span> <span class="n">NLUFramework</span>
+
+<span class="k">class</span> <span class="nc">_Performance</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">mean</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">variance</span><span class="p">:</span> <span class="nb">float</span>
+
+<div class="viewcode-block" id="NLUBenchmarker"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker">[docs]</a><span class="k">class</span> <span class="nc">NLUBenchmarker</span><span class="p">(</span><span class="n">HasLogger</span><span class="p">):</span>
+    <span class="n">__instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="s2">&quot;NLUBenchmarker&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="NLUBenchmarker.getInstance"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker.getInstance">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">getInstance</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NLUBenchmarker&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The singleton instance of this class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__cancel_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__instance</span></div>
+
+<div class="viewcode-block" id="NLUBenchmarker.cancel"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker.cancel">[docs]</a>    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abort the benchmark gracefully in the next situation possible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__cancel_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__safeDivide</span><span class="p">(</span><span class="n">dividend</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">divisor</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns 0 for 0/0, the normal quotient otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">dividend</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">divisor</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">dividend</span> <span class="o">/</span> <span class="n">divisor</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__prepareF1Score</span><span class="p">(</span>
+        <span class="n">intent</span><span class="p">:</span> <span class="n">Intent</span><span class="p">,</span>
+        <span class="n">confusion_matrix</span><span class="p">:</span> <span class="n">ConfusionMatrix</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">true_positives</span>  <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">true_negatives</span>  <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">false_positives</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">false_negatives</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span> <span class="ow">in</span> <span class="n">confusion_matrix</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">detected</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="n">actual</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">intent</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">detected</span> <span class="o">==</span> <span class="n">intent</span><span class="p">:</span>
+                        <span class="n">true_positives</span> <span class="o">+=</span> <span class="n">amount</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">false_negatives</span> <span class="o">+=</span> <span class="n">amount</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">detected</span> <span class="o">==</span> <span class="n">intent</span><span class="p">:</span>
+                        <span class="n">false_positives</span> <span class="o">+=</span> <span class="n">amount</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">true_negatives</span> <span class="o">+=</span> <span class="n">amount</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">true_positives</span><span class="p">,</span> <span class="n">true_negatives</span><span class="p">,</span> <span class="n">false_positives</span><span class="p">,</span> <span class="n">false_negatives</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NLUBenchmarker.confusionMatrixToF1Scores"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker.confusionMatrixToF1Scores">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">confusionMatrixToF1Scores</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">confusion_matrix</span><span class="p">:</span> <span class="n">ConfusionMatrix</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            confusion_matrix: The confusion matrix to calculate F1 scores from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A mapping from intents to their respective F1 scores.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">f1_scores</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">intent</span> <span class="ow">in</span> <span class="n">confusion_matrix</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">true_positives</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">false_positives</span><span class="p">,</span> <span class="n">false_negatives</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__prepareF1Score</span><span class="p">(</span>
+                <span class="n">intent</span><span class="p">,</span>
+                <span class="n">confusion_matrix</span>
+            <span class="p">)</span>
+
+            <span class="n">precision</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__safeDivide</span><span class="p">(</span><span class="n">true_positives</span><span class="p">,</span> <span class="n">true_positives</span> <span class="o">+</span> <span class="n">false_positives</span><span class="p">)</span>
+            <span class="n">recall</span>    <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__safeDivide</span><span class="p">(</span><span class="n">true_positives</span><span class="p">,</span> <span class="n">true_positives</span> <span class="o">+</span> <span class="n">false_negatives</span><span class="p">)</span>
+
+            <span class="c1"># Note: The value is multiplied times 100 here, which is not the standard for F1 scores.</span>
+            <span class="c1"># This is to get a more intuitive score that is (roughly) between 0 and 100. It also</span>
+            <span class="c1"># makes variances more graspable.</span>
+            <span class="n">f1_score</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__safeDivide</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span><span class="p">,</span> <span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span><span class="p">)</span>
+
+            <span class="n">f1_scores</span><span class="p">[</span><span class="n">intent</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1_score</span>
+
+        <span class="k">return</span> <span class="n">f1_scores</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__plot</span><span class="p">(</span>
+        <span class="n">performances</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Create one chart per data set</span>
+        <span class="k">for</span> <span class="n">framework_performances</span> <span class="ow">in</span> <span class="n">performances</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="c1"># Collect all intents that the frameworks were evaluated on</span>
+            <span class="n">intents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Intent</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">intent_performances</span> <span class="ow">in</span> <span class="n">framework_performances</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">intents</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">intent_performances</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+            <span class="c1"># Filter out the None-intent, because None can&#39;t be sorted together with strings</span>
+            <span class="n">intents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">intents</span><span class="p">))</span>
+
+            <span class="c1"># Remove duplicates and sort alphabetically</span>
+            <span class="n">intents</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">intents</span><span class="p">))</span>
+
+            <span class="c1"># Append the None-intent again, as the last entry</span>
+            <span class="n">intents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+            <span class="c1"># Convert None to the string &quot;None&quot;</span>
+            <span class="n">intent_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">intents</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">framework_title</span><span class="p">,</span> <span class="n">intent_performances</span> <span class="ow">in</span> <span class="n">framework_performances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">scores</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">intent</span> <span class="ow">in</span> <span class="n">intents</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">intent_performances</span><span class="p">[</span><span class="n">intent</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">intent_labels</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;$</span><span class="si">{}</span><span class="s2">$&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">framework_title</span><span class="p">)))</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;F1 score * 100&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Intents&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frameworks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUFramework</span><span class="p">],</span>
+        <span class="n">data_sets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataSet</span><span class="p">],</span>
+        <span class="n">num_iterations</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">ConfusionMatrix</span><span class="p">]]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run n iterations of benchmarking for each framework on each data set. The benchmark results</span>
+<span class="sd">        are returned &quot;raw&quot;, that is one confusion matrix for each framework on each data set for</span>
+<span class="sd">        each iteration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frameworks: The frameworks to benchmark.</span>
+<span class="sd">            data_sets: The data sets to benchmark on.</span>
+<span class="sd">            num_iterations: The number of iterations to repeat the evaluation process.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The performance of each framework on each data set over n iterations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Mypy requires the repetition of the return type</span>
+        <span class="n">iterations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">ConfusionMatrix</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Run the evaluation, one data set after another</span>
+        <span class="k">for</span> <span class="n">data_set</span> <span class="ow">in</span> <span class="n">data_sets</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Data set </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data_set</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+
+            <span class="k">await</span> <span class="n">run_in_parallel</span><span class="p">(</span>
+                <span class="n">frameworks</span><span class="p">,</span>
+                <span class="c1"># How could mypy possibly know the type of this lamda?</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">data_set</span><span class="o">=</span><span class="n">data_set</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">prepareDataSet</span><span class="p">(</span><span class="n">data_set</span><span class="p">),</span> <span class="c1"># type: ignore</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">unprepareDataSet</span><span class="p">(),</span>
+                <span class="s2">&quot;Error while preparing all frameworks for the </span><span class="si">{}</span><span class="s2"> data set.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_set</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cancel_flag</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyboardInterrupt</span>
+
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Iteration </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+                    <span class="n">performances</span> <span class="o">=</span> <span class="k">await</span> <span class="n">run_in_parallel</span><span class="p">(</span>
+                        <span class="n">frameworks</span><span class="p">,</span>
+                        <span class="c1"># Another one of these impossible-to-infer lambdas</span>
+                        <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">data_set</span><span class="o">=</span><span class="n">data_set</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="n">data_set</span><span class="p">),</span> <span class="c1"># type: ignore</span>
+                        <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">&quot;Error while benchmarking all frameworks.&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="n">data_set</span><span class="o">.</span><span class="n">reshuffle</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+                        <span class="n">iterations</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
+                    <span class="n">iterations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">data_set</span><span class="o">.</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="n">framework</span><span class="o">.</span><span class="n">title</span><span class="p">:</span> <span class="n">performance</span>
+                        <span class="k">for</span> <span class="n">framework</span><span class="p">,</span> <span class="n">performance</span>
+                        <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">frameworks</span><span class="p">,</span> <span class="n">performances</span><span class="p">)</span>
+                    <span class="p">}</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cancel_flag</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">KeyboardInterrupt</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="c1"># Make sure to always give the frameworks the chance to unprepare, even if something</span>
+                <span class="c1"># went wrong.</span>
+                <span class="k">await</span> <span class="n">run_in_parallel</span><span class="p">(</span>
+                    <span class="n">frameworks</span><span class="p">,</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">unprepareDataSet</span><span class="p">(),</span>
+                    <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;Error unpreparing all frameworks.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">iterations</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__confusionMatricesToF1Scores</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">iterations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">ConfusionMatrix</span><span class="p">]]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate F1 scores from confusion matrices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">iterations_result</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="n">iterations</span><span class="p">:</span>
+            <span class="n">iteration_result</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">data_set_title</span><span class="p">,</span> <span class="n">performances</span> <span class="ow">in</span> <span class="n">iteration</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">performances_result</span> <span class="o">=</span> <span class="p">{}</span>
+
+                <span class="k">for</span> <span class="n">framework_title</span><span class="p">,</span> <span class="n">confusion_matrix</span> <span class="ow">in</span> <span class="n">performances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">performances_result</span><span class="p">[</span><span class="n">framework_title</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">confusionMatrixToF1Scores</span><span class="p">(</span>
+                        <span class="n">confusion_matrix</span>
+                    <span class="p">)</span>
+
+                <span class="n">iteration_result</span><span class="p">[</span><span class="n">data_set_title</span><span class="p">]</span> <span class="o">=</span> <span class="n">performances_result</span>
+
+            <span class="n">iterations_result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iteration_result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">iterations_result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__f1ScoreMeansAndVariances</span><span class="p">(</span>
+        <span class="n">frameworks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUFramework</span><span class="p">],</span>
+        <span class="n">data_sets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataSet</span><span class="p">],</span>
+        <span class="n">iterations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate F1 score means and variances for each intent over all iterations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">performances</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">data_set</span> <span class="ow">in</span> <span class="n">data_sets</span><span class="p">:</span>
+            <span class="n">performances</span><span class="p">[</span><span class="n">data_set</span><span class="o">.</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">intents</span> <span class="o">=</span> <span class="p">{</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data_set</span><span class="o">.</span><span class="n">validation_data</span> <span class="p">}</span>
+
+            <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="n">frameworks</span><span class="p">:</span>
+                <span class="n">performances</span><span class="p">[</span><span class="n">data_set</span><span class="o">.</span><span class="n">title</span><span class="p">][</span><span class="n">framework</span><span class="o">.</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+                <span class="k">for</span> <span class="n">intent</span> <span class="ow">in</span> <span class="n">intents</span><span class="p">:</span>
+                    <span class="k">def</span> <span class="nf">score_getter</span><span class="p">(</span>
+                        <span class="n">x</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]],</span>
+                        <span class="n">data_set</span><span class="p">:</span> <span class="n">NLUDataSet</span> <span class="o">=</span> <span class="n">data_set</span><span class="p">,</span>
+                        <span class="n">framework</span><span class="p">:</span> <span class="n">NLUFramework</span> <span class="o">=</span> <span class="n">framework</span><span class="p">,</span>
+                        <span class="n">intent</span><span class="p">:</span> <span class="n">Intent</span> <span class="o">=</span> <span class="n">intent</span>
+                    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+                        <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="n">data_set</span><span class="o">.</span><span class="n">title</span><span class="p">][</span><span class="n">framework</span><span class="o">.</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">intent</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                    <span class="c1"># mypy doesn&#39;t understand that you can call score_getter without passing all</span>
+                    <span class="c1"># four arguments.</span>
+                    <span class="n">scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+                        <span class="c1"># Some intents may not have been part of the validation data in all</span>
+                        <span class="c1"># runs. In these runs, the score is set to None and is excluded from the</span>
+                        <span class="c1"># calculations later.</span>
+                        <span class="n">score_getter</span><span class="p">,</span>
+                        <span class="n">iterations</span>
+                    <span class="p">))</span>
+
+                    <span class="c1"># Remove None-scores, see comments above</span>
+                    <span class="n">filtered_scores</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="n">scores</span> <span class="c1"># type: ignore</span>
+                    <span class="p">))</span>
+
+                    <span class="c1"># If an intent was not included in any of the validation data, ignore the</span>
+                    <span class="c1"># intent completely.</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_scores</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="n">mean</span>     <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">filtered_scores</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_scores</span><span class="p">)</span>
+                    <span class="n">variance</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="c1"># type: ignore</span>
+                    <span class="n">filtered_scores</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_scores</span><span class="p">)</span>
+
+                    <span class="n">performances</span><span class="p">[</span><span class="n">data_set</span><span class="o">.</span><span class="n">title</span><span class="p">][</span><span class="n">framework</span><span class="o">.</span><span class="n">title</span><span class="p">][</span><span class="n">intent</span><span class="p">]</span> <span class="o">=</span> <span class="n">_Performance</span><span class="p">(</span>
+                        <span class="n">mean</span>     <span class="o">=</span> <span class="n">mean</span><span class="p">,</span>
+                        <span class="n">variance</span> <span class="o">=</span> <span class="n">variance</span>
+                    <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">performances</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__mergeIntentPerformances</span><span class="p">(</span>
+        <span class="n">performances</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the average performances across all intents for each data set and each framework.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Mypy requires the repetition of the return type</span>
+        <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">data_set_title</span><span class="p">,</span> <span class="n">framework_performances</span> <span class="ow">in</span> <span class="n">performances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">data_set_title</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">framework_title</span><span class="p">,</span> <span class="n">intent_performances</span> <span class="ow">in</span> <span class="n">framework_performances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">means</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">intent_performances</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+                <span class="n">variances</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">variance</span><span class="p">,</span>
+                    <span class="n">intent_performances</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                <span class="p">))</span>
+
+                <span class="n">result</span><span class="p">[</span><span class="n">data_set_title</span><span class="p">][</span><span class="n">framework_title</span><span class="p">]</span> <span class="o">=</span> <span class="n">_Performance</span><span class="p">(</span>
+                    <span class="n">mean</span>     <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">means</span><span class="p">)</span>     <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">means</span><span class="p">),</span>
+                    <span class="n">variance</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">variances</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">variances</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__sortPerformances</span><span class="p">(</span>
+        <span class="n">performances</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sort the frameworks by their performances, best to worst, looking only at the mean.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">data_set_title</span><span class="p">,</span> <span class="n">framework_performances</span> <span class="ow">in</span> <span class="n">performances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">data_set_title</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">framework_performances</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span>
+                <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">__printWinner</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">performances</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">_Performance</span><span class="p">]]],</span>
+        <span class="n">data_sets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataSet</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the &quot;winner&quot; for each data set, together with the average mean and variance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">longest_data_set_title_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">title</span><span class="p">),</span> <span class="n">data_sets</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Best performing frameworks for each data set:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">data_set_title</span><span class="p">,</span> <span class="n">framework_performances</span> <span class="ow">in</span> <span class="n">performances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> : </span><span class="si">%s</span><span class="s2">; Average performance: </span><span class="si">%6.2f</span><span class="s2"> (variance: </span><span class="si">%6.2f</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="n">data_set_title</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">longest_data_set_title_length</span><span class="p">),</span>
+                <span class="n">framework_performances</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">framework_performances</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span>
+                <span class="n">framework_performances</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">variance</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="NLUBenchmarker.run"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker.run">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frameworks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUFramework</span><span class="p">],</span>
+        <span class="n">data_sets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataSet</span><span class="p">],</span>
+        <span class="n">num_iterations</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Measure the performance of each framework on each data set. Outputs a summary about which</span>
+<span class="sd">        framework performed best on each data set; also generates charts with more details about all</span>
+<span class="sd">        performances.</span>
+
+<span class="sd">        This method guarantees that all frameworks are destroyed before returning.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frameworks: The frameworks to benchmark.</span>
+<span class="sd">            data_sets: The data sets to benchmark on.</span>
+<span class="sd">            num_iterations: The number of iterations to repeat the evaluation process. The result is</span>
+<span class="sd">                the average over all iterations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">iterations</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">__run</span><span class="p">(</span><span class="n">frameworks</span><span class="p">,</span> <span class="n">data_sets</span><span class="p">,</span> <span class="n">num_iterations</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Make sure that the frameworks are destructed even if something goes wrong during the</span>
+            <span class="c1"># benchmarking.</span>
+            <span class="k">await</span> <span class="n">run_in_parallel</span><span class="p">(</span>
+                <span class="n">frameworks</span><span class="p">,</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">destruct</span><span class="p">(),</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;Error deconstructing all frameworks.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">iterations_</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__confusionMatricesToF1Scores</span><span class="p">(</span><span class="n">iterations</span><span class="p">)</span>
+        <span class="n">performances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__f1ScoreMeansAndVariances</span><span class="p">(</span><span class="n">frameworks</span><span class="p">,</span> <span class="n">data_sets</span><span class="p">,</span> <span class="n">iterations_</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__plot</span><span class="p">(</span><span class="n">performances</span><span class="p">)</span>
+
+        <span class="n">performances_</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__mergeIntentPerformances</span><span class="p">(</span><span class="n">performances</span><span class="p">)</span>
+        <span class="n">performances__</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sortPerformances</span><span class="p">(</span><span class="n">performances_</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__printWinner</span><span class="p">(</span><span class="n">performances__</span><span class="p">,</span> <span class="n">data_sets</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NLUBenchmarker.createFrameworks"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker.createFrameworks">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">createFrameworks</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">global_config</span><span class="p">:</span> <span class="n">GlobalConfig</span><span class="p">,</span>
+        <span class="n">framework_configs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">FrameworkTitle</span><span class="p">,</span> <span class="n">JSONSerializable</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUFramework</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and prepare :class:`~nlutestframework.nlu_framework.NLUFramework` s based on</span>
+<span class="sd">        configuration dictionaries.</span>
+
+<span class="sd">        This method guarantees that either all frameworks are created or none of them. That means,</span>
+<span class="sd">        if something goes wrong in the progress, frameworks that already were created are destroyed</span>
+<span class="sd">        again.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            global_config: Global configuration for the whole test framework.</span>
+<span class="sd">            framework_configs: A dictionary containing the configuration of the frameworks to</span>
+<span class="sd">                create. See :ref:`configuration-framework` for more information.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            :exc:`ParallelException`: if at least one framework creation failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">async</span> <span class="k">def</span> <span class="nf">create_framework</span><span class="p">(</span>
+            <span class="n">title</span><span class="p">:</span> <span class="n">FrameworkTitle</span><span class="p">,</span>
+            <span class="n">framework_config</span><span class="p">:</span> <span class="n">JSONSerializable</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NLUFramework</span><span class="p">:</span>
+            <span class="c1"># Split at the last dot, which should result in the package name and the class name</span>
+            <span class="c1"># mypy is technically right that the framework_config, which is a JSONSerializable, is</span>
+            <span class="c1"># not guaranteed to be a Dict here.</span>
+            <span class="n">module</span><span class="p">,</span> <span class="n">class_name</span> <span class="o">=</span> <span class="n">framework_config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># type: ignore</span>
+
+            <span class="c1"># Remove the &quot;class&quot; key from the framework config</span>
+            <span class="k">del</span> <span class="n">framework_config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="c1"># type: ignore</span>
+
+            <span class="c1"># Dynamically import the class and get a reference</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module</span><span class="p">),</span> <span class="n">class_name</span><span class="p">)</span>
+
+            <span class="c1"># Create the framework instance</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="n">framework_config</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span> <span class="c1"># type: ignore</span>
+
+        <span class="k">return</span> <span class="k">await</span> <span class="n">run_in_parallel</span><span class="p">(</span> <span class="c1"># type: ignore</span>
+            <span class="n">framework_configs</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="c1"># type: ignore</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">create_framework</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">),</span>
+            <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">destruct</span><span class="p">(),</span>
+            <span class="s2">&quot;Failed to create framework instances.&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="NLUBenchmarker.loadDataSets"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker.loadDataSets">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">loadDataSets</span><span class="p">(</span>
+        <span class="n">configs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DataSetTitle</span><span class="p">,</span> <span class="n">JSONSerializable</span><span class="p">],</span>
+        <span class="n">global_ignore_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataSet</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load data sets based on the configuration dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            configs: A dictionary containing the configuration of the data sets to load. See</span>
+<span class="sd">                :ref:`configuration-data-set` for more information.</span>
+<span class="sd">            global_ignore_cache: A boolean indicating whether caches should be ignored globally.</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">instances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">title</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Split at the last dot, which should result in the package name and the class name</span>
+            <span class="n">module</span><span class="p">,</span> <span class="n">class_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># type: ignore</span>
+
+            <span class="c1"># Remove the &quot;class&quot; key from the config</span>
+            <span class="k">del</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="c1"># type: ignore</span>
+
+            <span class="c1"># Dynamically import the class and get a reference</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module</span><span class="p">),</span> <span class="n">class_name</span><span class="p">)</span>
+
+            <span class="c1"># If the cache is disabled globally, override the setting in the config</span>
+            <span class="k">if</span> <span class="n">global_ignore_cache</span><span class="p">:</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;ignore_cache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># type: ignore</span>
+
+            <span class="c1"># Create the data set instance</span>
+            <span class="n">instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">instances</span></div>
+
+<div class="viewcode-block" id="NLUBenchmarker.runFromConfig"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker.runFromConfig">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">runFromConfig</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">JSONSerializable</span><span class="p">]],</span>
+        <span class="o">**</span><span class="n">global_config_override</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load and run a full benchmark from a single configuration dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config: A dictionary containing the full configuration required to load and run the</span>
+<span class="sd">                benchmark. See :ref:`configuration-full` for more information.</span>
+<span class="sd">            **global_config_override: Options to override in the global configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">global_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;python&quot;</span>       <span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;global&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">),</span>
+            <span class="s2">&quot;iterations&quot;</span>   <span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;global&quot;</span><span class="p">][</span><span class="s2">&quot;iterations&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;ignore_cache&quot;</span> <span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;global&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ignore_cache&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">global_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">global_config_override</span><span class="p">)</span>
+        <span class="n">global_config_</span> <span class="o">=</span> <span class="n">GlobalConfig</span><span class="p">(</span><span class="o">**</span><span class="n">global_config</span><span class="p">)</span> <span class="c1"># type: ignore</span>
+
+        <span class="c1"># Load the data sets first, so that the frameworks don&#39;t have to be destroyed if loading the</span>
+        <span class="c1"># data sets fails.</span>
+        <span class="n">data_sets</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loadDataSets</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;data_sets&quot;</span><span class="p">],</span> <span class="n">global_config_</span><span class="o">.</span><span class="n">ignore_cache</span><span class="p">)</span>
+        <span class="n">frameworks</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">createFrameworks</span><span class="p">(</span><span class="n">global_config_</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;frameworks&quot;</span><span class="p">])</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">frameworks</span><span class="p">,</span> <span class="n">data_sets</span><span class="p">,</span> <span class="n">global_config_</span><span class="o">.</span><span class="n">iterations</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NLUBenchmarker.runFromConfigFile"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_benchmarker.html#nlutestframework.nlu_benchmarker.NLUBenchmarker.runFromConfigFile">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">runFromConfigFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">global_config_override</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load and run a full benchmark from a configuration file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: The path to the configuration file. See :ref:`configuration-file` for more</span>
+<span class="sd">                information.</span>
+<span class="sd">            **global_config_override: Options to override in the global configuration.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            :exc:`OSError`: in case the config file could not be read due to I/O or other OS-related</span>
+<span class="sd">                issues.</span>
+<span class="sd">            :exc:`yaml.YAMLError`: in case the config file contains invalid YAML.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="c1"># Data set configuration file convenience: The data paths may be given relative to the</span>
+        <span class="c1"># configuration file location.</span>
+        <span class="k">for</span> <span class="n">data_set_config</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;data_sets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="c1"># Make the data paths absolute, relative to the location of the configuration file.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">data_set_config</span><span class="p">[</span><span class="s2">&quot;data_path&quot;</span><span class="p">]):</span>
+                <span class="n">data_set_config</span><span class="p">[</span><span class="s2">&quot;data_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+                    <span class="n">data_set_config</span><span class="p">[</span><span class="s2">&quot;data_path&quot;</span><span class="p">]</span>
+                <span class="p">))</span>
+
+        <span class="c1"># Data set convenience: Implementations included in this library don&#39;t have to be specified</span>
+        <span class="c1"># using the whole package name.</span>
+        <span class="k">for</span> <span class="n">data_set_config</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;data_sets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_set_config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]:</span>
+                <span class="n">data_set_config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nlutestframework.implementations.</span><span class="si">{}</span><span class="s2">DataSet&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">data_set_config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Framework convenience: Implementations included in this library don&#39;t have to be specified</span>
+        <span class="c1"># using the whole package name.</span>
+        <span class="k">for</span> <span class="n">framework_config</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;frameworks&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">framework_config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]:</span>
+                <span class="n">framework_config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;nlutestframework.implementations.</span><span class="si">{}</span><span class="s2">NLUFramework&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">framework_config</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">runFromConfig</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">global_config_override</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlutestframework.intent_threshold_optimizer &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>nlutestframework.intent_threshold_optimizer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for nlutestframework.intent_threshold_optimizer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+
+<span class="kn">from</span> <span class="nn">.nlu_benchmarker</span> <span class="kn">import</span> <span class="n">NLUBenchmarker</span>
+
+<span class="c1"># Other imports only for the type hints</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">.types</span> <span class="kn">import</span> <span class="n">ConfusionMatrix</span><span class="p">,</span> <span class="n">Intent</span>
+<span class="kn">from</span> <span class="nn">.nlu_data_set</span> <span class="kn">import</span> <span class="n">NLUDataSet</span>
+<span class="kn">from</span> <span class="nn">.nlu_framework</span> <span class="kn">import</span> <span class="n">NLUFramework</span>
+<span class="kn">from</span> <span class="nn">.nlu_intent_rating</span> <span class="kn">import</span> <span class="n">NLUIntentRating</span>
+
+<span class="c1"># This setting prevents cut-off labels in plots created by matplotlib</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rcParams</span><span class="p">;</span> <span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span> <span class="s2">&quot;figure.autolayout&quot;</span><span class="p">:</span> <span class="kc">True</span> <span class="p">});</span> <span class="k">del</span> <span class="n">rcParams</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<div class="viewcode-block" id="IntentThresholdOptimizer"><a class="viewcode-back" href="../../sources/nlutestframework/intent_threshold_optimizer.html#nlutestframework.intent_threshold_optimizer.IntentThresholdOptimizer">[docs]</a><span class="k">class</span> <span class="nc">IntentThresholdOptimizer</span><span class="p">:</span>
+<div class="viewcode-block" id="IntentThresholdOptimizer.optimize"><a class="viewcode-back" href="../../sources/nlutestframework/intent_threshold_optimizer.html#nlutestframework.intent_threshold_optimizer.IntentThresholdOptimizer.optimize">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">framework</span><span class="p">:</span> <span class="n">NLUFramework</span><span class="p">,</span>
+        <span class="n">data_set</span><span class="p">:</span> <span class="n">NLUDataSet</span><span class="p">,</span>
+        <span class="n">iterations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">grid_step_size</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the optimal confidence threshold for interpreting an intent classification result as</span>
+<span class="sd">        the None-intent.</span>
+
+<span class="sd">        The optimal threshold is found by running multiple iterations of the benchmark and searching</span>
+<span class="sd">        for the threshold that maximizes the F1 score for each iteration. The optimal threshold is</span>
+<span class="sd">        found by a grid search. The grids of each iteration are averaged and the threshold with the</span>
+<span class="sd">        maximum F1 score found that way is returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            framework: An NLU framework which is already prepared for the data set.</span>
+<span class="sd">            data_set: The data set to optimize the threshold for.</span>
+<span class="sd">            iterations: The number of iterations to repeat and average the threshold optimization.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The optimized threshold.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">grids</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Optimizing </span><span class="si">%s</span><span class="s2">, iteration </span><span class="si">%s</span><span class="s2"> out of </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="n">framework</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+                <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">iterations</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Collect all grids</span>
+            <span class="n">grid</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__iteration</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">data_set</span><span class="p">,</span> <span class="n">grid_step_size</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">grids</span><span class="p">[</span><span class="n">thresh</span><span class="p">]</span> <span class="o">=</span> <span class="n">grids</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">grids</span><span class="p">[</span><span class="n">thresh</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+        <span class="n">grids_avg</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Calculate the means and variances of all entries in the grids</span>
+        <span class="k">for</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">scores</span> <span class="ow">in</span> <span class="n">grids</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">mean</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="c1"># type: ignore</span>
+            <span class="n">scores</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+
+            <span class="n">grids_avg</span><span class="p">[</span><span class="n">thresh</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">mean</span><span class="p">,</span> <span class="s2">&quot;var&quot;</span><span class="p">:</span> <span class="n">var</span> <span class="p">}</span>
+
+        <span class="c1"># Find the threshold with the highest F1 score</span>
+        <span class="n">t_max</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s2">&quot;thresh&quot;</span><span class="p">:</span> <span class="mf">0.</span> <span class="p">}</span>
+        <span class="k">for</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">score_avg</span> <span class="ow">in</span> <span class="n">grids_avg</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">score_avg</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">t_max</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]:</span>
+                <span class="n">t_max</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score_avg</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">],</span> <span class="s2">&quot;thresh&quot;</span><span class="p">:</span> <span class="n">thresh</span> <span class="p">}</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Threshold: F1 score mean (variance)&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">score_avg</span> <span class="ow">in</span> <span class="n">grids_avg</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">: </span><span class="si">{:.2f}</span><span class="s2"> (</span><span class="si">{:.2f}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="n">score_avg</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">],</span> <span class="n">score_avg</span><span class="p">[</span><span class="s2">&quot;var&quot;</span><span class="p">]))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best: </span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t_max</span><span class="p">[</span><span class="s2">&quot;thresh&quot;</span><span class="p">]))</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__plot</span><span class="p">(</span><span class="n">grids_avg</span><span class="p">,</span> <span class="s2">&quot;Threshold Optimization of </span><span class="si">{}</span><span class="s2"> on </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">framework</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">data_set</span><span class="o">.</span><span class="n">title</span>
+        <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">t_max</span><span class="p">[</span><span class="s2">&quot;thresh&quot;</span><span class="p">]</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">__iteration</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">framework</span><span class="p">:</span> <span class="n">NLUFramework</span><span class="p">,</span>
+        <span class="n">data_set</span><span class="p">:</span> <span class="n">NLUDataSet</span><span class="p">,</span>
+        <span class="n">grid_step_size</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Train</span>
+            <span class="k">await</span> <span class="n">framework</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">data_set</span><span class="o">.</span><span class="n">training_data</span><span class="p">)</span>
+
+            <span class="c1"># Classify (without applying any threshold)</span>
+            <span class="n">ratings</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">datum</span><span class="o">.</span><span class="n">intent</span><span class="p">,</span> <span class="k">await</span> <span class="n">framework</span><span class="o">.</span><span class="n">rateIntents</span><span class="p">(</span><span class="n">datum</span><span class="o">.</span><span class="n">sentence</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">datum</span>
+                <span class="ow">in</span> <span class="n">data_set</span><span class="o">.</span><span class="n">validation_data</span>
+            <span class="p">]</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Guarantee the cleanup</span>
+            <span class="k">await</span> <span class="n">framework</span><span class="o">.</span><span class="n">cleanupTraining</span><span class="p">()</span>
+
+        <span class="c1"># Re-shuffle the data set</span>
+        <span class="n">data_set</span><span class="o">.</span><span class="n">reshuffle</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">calc_f1_for_threshold</span><span class="p">(</span><span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">thresholded_ratings</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ratings</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">rating</span><span class="p">)</span> <span class="ow">in</span> <span class="n">thresholded_ratings</span><span class="p">:</span>
+                <span class="n">rating</span><span class="o">.</span><span class="n">noneIfBelow</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
+
+            <span class="n">confusion_matrix</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__toConfusionMatrix</span><span class="p">(</span><span class="n">thresholded_ratings</span><span class="p">)</span>
+
+            <span class="n">f1_scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">NLUBenchmarker</span><span class="o">.</span><span class="n">confusionMatrixToF1Scores</span><span class="p">(</span><span class="n">confusion_matrix</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">f1_scores</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">f1_scores</span><span class="p">)</span>
+
+        <span class="c1"># Run a grid search over the threshold</span>
+        <span class="n">grid</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">thresh</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">while</span> <span class="n">thresh</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="p">:</span>
+            <span class="n">grid</span><span class="p">[</span><span class="n">thresh</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_f1_for_threshold</span><span class="p">(</span><span class="n">thresh</span><span class="p">)</span>
+
+            <span class="n">thresh</span> <span class="o">+=</span> <span class="n">grid_step_size</span>
+
+        <span class="k">return</span> <span class="n">grid</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__toConfusionMatrix</span><span class="p">(</span><span class="n">ratings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Intent</span><span class="p">,</span> <span class="n">NLUIntentRating</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">ConfusionMatrix</span><span class="p">:</span>
+        <span class="n">confusion_matrix</span><span class="p">:</span> <span class="n">ConfusionMatrix</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">intent</span><span class="p">,</span> <span class="n">rating</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ratings</span><span class="p">:</span>
+            <span class="n">confusion_matrix</span><span class="p">[</span><span class="n">intent</span><span class="p">]</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">intent</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">confusion_matrix</span><span class="p">[</span><span class="n">intent</span><span class="p">][</span><span class="n">rating</span><span class="o">.</span><span class="n">detected_intent</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">confusion_matrix</span><span class="p">[</span><span class="n">intent</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rating</span><span class="o">.</span><span class="n">detected_intent</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">confusion_matrix</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__plot</span><span class="p">(</span><span class="n">grids</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sorted_coord_pairs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">grids</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">_plot</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span>
+                <span class="p">[</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_coord_pairs</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_coord_pairs</span> <span class="p">],</span>
+                <span class="n">yerr</span><span class="o">=</span><span class="p">[</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;var&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_coord_pairs</span> <span class="p">],</span>
+                <span class="n">capsize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                <span class="n">capthick</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">errorevery</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">sorted_coord_pairs</span><span class="p">)</span> <span class="o">//</span> <span class="mi">20</span>
+            <span class="p">)</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;F1 score * 100 (mean over all iterations)&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;threshold&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_plot</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

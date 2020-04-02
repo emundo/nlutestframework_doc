@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlu_intent_rating &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="optimizable_nlu_framework" href="optimizable_nlu_framework.html" />
+    <link rel="prev" title="nlu_framework" href="nlu_framework.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="package.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="global_config.html">global_config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="has_logger.html">has_logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intent_threshold_optimizer.html">intent_threshold_optimizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlu_benchmarker.html">nlu_benchmarker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlu_data_entry.html">nlu_data_entry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlu_data_set.html">nlu_data_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlu_framework.html">nlu_framework</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">nlu_intent_rating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimizable_nlu_framework.html">optimizable_nlu_framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel_exception.html">parallel_exception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serializable.html">serializable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implementations/package.html">Package: implementations</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="package.html">nlutestframework</a> &raquo;</li>
+        
+      <li>nlu_intent_rating</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/sources/nlutestframework/nlu_intent_rating.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="nlu-intent-rating">
+<h1>nlu_intent_rating<a class="headerlink" href="#nlu-intent-rating" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="nlutestframework.nlu_intent_rating.NLUIntentRating">
+<em class="property">class </em><code class="sig-prename descclassname">nlutestframework.nlu_intent_rating.</code><code class="sig-name descname">NLUIntentRating</code><span class="sig-paren">(</span><em class="sig-param">sentence</em>, <em class="sig-param">rated_intents</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_intent_rating.html#NLUIntentRating"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_intent_rating.NLUIntentRating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="nlutestframework.nlu_intent_rating.NLUIntentRating.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">sentence</em>, <em class="sig-param">rated_intents</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_intent_rating.html#NLUIntentRating.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_intent_rating.NLUIntentRating.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sentence</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The sentence rated by the NLU framework.</p></li>
+<li><p><strong>rated_intents</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – A mapping from intents to floats encoding the confidence of the NLU
+framework, that the rated sentence belongs to that intent. The confidence ranges
+from 0 to 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_intent_rating.NLUIntentRating.sentence">
+<em class="property">property </em><code class="sig-name descname">sentence</code><a class="headerlink" href="#nlutestframework.nlu_intent_rating.NLUIntentRating.sentence" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_intent_rating.NLUIntentRating.sorted_intents">
+<em class="property">property </em><code class="sig-name descname">sorted_intents</code><a class="headerlink" href="#nlutestframework.nlu_intent_rating.NLUIntentRating.sorted_intents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:
+A copy of the mapping passed to the constructor, but sorted from highest confidence to
+lowest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_intent_rating.NLUIntentRating.detected_intent">
+<em class="property">property </em><code class="sig-name descname">detected_intent</code><a class="headerlink" href="#nlutestframework.nlu_intent_rating.NLUIntentRating.detected_intent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns:
+The intent that was rated by the NLU framework with highest confidence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="nlutestframework.nlu_intent_rating.NLUIntentRating.noneIfBelow">
+<code class="sig-name descname">noneIfBelow</code><span class="sig-paren">(</span><em class="sig-param">threshold</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nlutestframework/nlu_intent_rating.html#NLUIntentRating.noneIfBelow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#nlutestframework.nlu_intent_rating.NLUIntentRating.noneIfBelow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the best-rated intent with the None-intent, if the confidence of the best-rated
+intent is below (or equal to) a certain threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>threshold</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The threshold.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="optimizable_nlu_framework.html" class="btn btn-neutral float-right" title="optimizable_nlu_framework" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="nlu_framework.html" class="btn btn-neutral float-left" title="nlu_framework" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

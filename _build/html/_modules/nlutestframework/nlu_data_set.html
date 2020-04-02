@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlutestframework.nlu_data_set &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>nlutestframework.nlu_data_set</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for nlutestframework.nlu_data_set</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">langcodes</span> <span class="kn">import</span> <span class="n">Language</span>
+
+<span class="kn">from</span> <span class="nn">.has_logger</span> <span class="kn">import</span> <span class="n">HasLogger</span>
+<span class="kn">from</span> <span class="nn">.nlu_data_entry</span> <span class="kn">import</span> <span class="n">NLUDataEntry</span>
+
+<span class="c1"># Other imports only for the type hints</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">.types</span> <span class="kn">import</span> <span class="n">DataSetTitle</span>
+
+<div class="viewcode-block" id="NLUDataSet"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_data_set.html#nlutestframework.nlu_data_set.NLUDataSet">[docs]</a><span class="k">class</span> <span class="nc">NLUDataSet</span><span class="p">(</span><span class="n">HasLogger</span><span class="p">):</span>
+<div class="viewcode-block" id="NLUDataSet.__init__"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_data_set.html#nlutestframework.nlu_data_set.NLUDataSet.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="n">DataSetTitle</span><span class="p">,</span>
+        <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">validation_percentage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">language</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ignore_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            title: The title of this data set.</span>
+<span class="sd">            data_path: The path to the file or directory containing the data in an</span>
+<span class="sd">                implementation-specific format. User directory references and environment variables</span>
+<span class="sd">                are expanded.</span>
+<span class="sd">            validation_percentage: The percentage of the data to be used for performance validation,</span>
+<span class="sd">                the remaining data is used for training. Expects a positive whole number between 0</span>
+<span class="sd">                and 100.</span>
+<span class="sd">            language: The language tag of this data set, e.g. &quot;en&quot; or &quot;en-us&quot;. If this parameter is</span>
+<span class="sd">                set to None or omitted, the implementation is assumed to get that information from</span>
+<span class="sd">                somewhere else.</span>
+<span class="sd">            ignore_cache: A boolean flag indicating whether the data cache should be ignored.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            :exc:`OSError`: in case the data could not be loaded or cached due to I/O or other</span>
+<span class="sd">                OS-related issues.</span>
+<span class="sd">            :exc:`ValueError`: if the validation data set or the training data set are empty after</span>
+<span class="sd">                splitting the data based on validation_percentage.</span>
+<span class="sd">            :exc:`ValueError`: if the data path does not point to an existing file or directory.</span>
+
+<span class="sd">        Sentences assigned to the None-intent are treated differently. These sentences are first</span>
+<span class="sd">        removed from the data set, the remaining data is then shuffled and split and the None-data</span>
+<span class="sd">        is added to the validation data in the final step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__title</span>    <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">language</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_setLanguage</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>
+
+        <span class="c1"># Expand user directory references, environment variables and make the path absolute.</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">data_path</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The data path does not point to an existing file or directory.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Try to load the cached data</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">ignore_cache</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__loadCachedData</span><span class="p">(</span><span class="n">data_path</span><span class="p">)):</span>
+            <span class="n">ignore_cache</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># If the cache was ignored (also set if loading the cache failed), load the data &quot;by hand&quot;</span>
+        <span class="k">if</span> <span class="n">ignore_cache</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loadData</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+
+            <span class="c1"># Only the data without None-intent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+
+            <span class="c1"># Only the data with None-intent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__none_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__cacheData</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+
+        <span class="c1"># Apply the split percentage only to the data without None-intent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__validation_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">validation_percentage</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">))</span> <span class="o">//</span> <span class="mi">100</span>
+
+        <span class="c1"># Perform an initial shuffle-and-split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reshuffle</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__title</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="c1"># type: ignore</span>
+
+    <span class="k">def</span> <span class="nf">_setLanguage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            language: The language of this data set. Use this method to set the language, if the</span>
+<span class="sd">                language was dynamically loaded from the data set itself. The language is</span>
+<span class="sd">                represented by its ISO 639-1 code (e.g. &quot;en&quot;).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            :exc:`ValueError`: if the language was already set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The language for this data set was already set.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="o">=</span> <span class="n">Language</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">language</span><span class="p">)</span><span class="o">.</span><span class="n">maximize</span><span class="p">()</span><span class="o">.</span><span class="n">to_tag</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__loadCachedData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data_path: The absolute path to the file or directory containing the original data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A boolean indicating whether loading the cache was successful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+            <span class="n">cache_file</span> <span class="o">=</span> <span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;.nlucache&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cache_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;nlu.cache&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+            <span class="c1"># Load the language and make sure it is consistent with the expected language</span>
+            <span class="n">language</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;language&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="o">==</span> <span class="n">language</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__language</span> <span class="o">=</span> <span class="n">language</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Language clash between cached data and expected language.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Load the entries</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span> <span class="n">NLUDataEntry</span><span class="o">.</span><span class="n">fromSerialized</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;entries&quot;</span><span class="p">]</span> <span class="p">]</span>
+
+            <span class="c1"># Only the data without None-intent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">entries</span><span class="p">))</span>
+
+            <span class="c1"># Only the data with None-intent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__none_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="n">entries</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> <span class="c1"># pylint: disable=broad-except</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Error loading cached data&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">__cacheData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data_path: The absolute path to the file or directory containing the original data.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            :exc:`OSError`: if storing the cache fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+            <span class="n">cache_file</span> <span class="o">=</span> <span class="n">data_path</span> <span class="o">+</span> <span class="s2">&quot;.nlucache&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cache_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">&quot;nlu.cache&quot;</span><span class="p">)</span>
+
+        <span class="n">entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__none_data</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;language&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__language</span><span class="p">,</span>
+            <span class="s2">&quot;entries&quot;</span>  <span class="p">:</span> <span class="p">[</span> <span class="n">entry</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span> <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_loadData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataEntry</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data_path: The absolute path to the file or directory containing the original data in an</span>
+<span class="sd">                implementation-specific format.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of NLUDataEntry instances.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            :exc:`OSError`: in case the data could not be loaded due to I/O or other OS-related</span>
+<span class="sd">                issues.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;To be implemented by subclasses.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NLUDataSet.reshuffle"><a class="viewcode-back" href="../../sources/nlutestframework/nlu_data_set.html#nlutestframework.nlu_data_set.NLUDataSet.reshuffle">[docs]</a>    <span class="k">def</span> <span class="nf">reshuffle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shuffle the data and split it into training and validation data. This method does not make</span>
+<span class="sd">        sure that the new splitting is different from previous splittings, but given a decent amount</span>
+<span class="sd">        of data the chance for that should be low enough.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            :exc:`ValueError`: if the validation data set or the training data set are empty after</span>
+<span class="sd">                splitting the data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Shuffle the data without None-intent</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">)</span>
+
+        <span class="c1"># Split the data without None-intent into training and validation data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__training</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__validation_size</span><span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__validation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">__validation_size</span><span class="p">]</span>
+
+        <span class="c1"># Make sure that both sets are non-empty</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__validation</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__training</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Validation or training data is empty.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Extend the validation data by the None-intent data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__validation</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__none_data</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">training_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataEntry</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The data to train on.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__training</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">validation_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataEntry</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The data to validate with.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__validation</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;NLU data set </span><span class="se">\&quot;</span><span class="si">{}</span><span class="se">\&quot;</span><span class="s2"> with </span><span class="si">{}</span><span class="s2"> entries.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

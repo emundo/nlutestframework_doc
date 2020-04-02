@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlutestframework.optimizable_nlu_framework &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>nlutestframework.optimizable_nlu_framework</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for nlutestframework.optimizable_nlu_framework</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.intent_threshold_optimizer</span> <span class="kn">import</span> <span class="n">IntentThresholdOptimizer</span>
+<span class="kn">from</span> <span class="nn">.nlu_framework</span> <span class="kn">import</span> <span class="n">NLUFramework</span>
+
+<span class="c1"># Other imports only for the type hints</span>
+<span class="kn">from</span> <span class="nn">.nlu_data_set</span> <span class="kn">import</span> <span class="n">NLUDataSet</span>
+<span class="kn">from</span> <span class="nn">.nlu_intent_rating</span> <span class="kn">import</span> <span class="n">NLUIntentRating</span>
+
+<div class="viewcode-block" id="OptimizableNLUFramework"><a class="viewcode-back" href="../../sources/nlutestframework/optimizable_nlu_framework.html#nlutestframework.optimizable_nlu_framework.OptimizableNLUFramework">[docs]</a><span class="k">class</span> <span class="nc">OptimizableNLUFramework</span><span class="p">(</span><span class="n">NLUFramework</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for NLU frameworks that need a threshold-based implementation of the None-intent.</span>
+<span class="sd">    Beware that some of the method names you have to implement differ from</span>
+<span class="sd">    :class:`~nlutestframework.nlu_framework.NLUFramework`, namely :meth:`_prepareDataSet`</span>
+<span class="sd">    (was: :meth:`~nlutestframework.nlu_framework.NLUFramework.prepareDataSet`) and</span>
+<span class="sd">    :meth:`_rateIntents` (was: :meth:`~nlutestframework.nlu_framework.NLUFramework.rateIntents`).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="OptimizableNLUFramework.construct"><a class="viewcode-back" href="../../sources/nlutestframework/optimizable_nlu_framework.html#nlutestframework.optimizable_nlu_framework.OptimizableNLUFramework.construct">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span> <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">intent_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
+        <span class="n">optimize_intent_threshold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">optimizer_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">optimizer_grid_search_step_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            intent_threshold: Some frameworks don&#39;t have the None-intent or a comparable, compatible</span>
+<span class="sd">                concept built-in. For these frameworks, this implementation selects the None-intent</span>
+<span class="sd">                based on the highest confidence of all intents. If the highest confidence is below</span>
+<span class="sd">                intent_threshold, the rated intent is interpreted as the None-intent instead.</span>
+<span class="sd">                Confidence values range from 0 to 1, the default value of intent_threshold is 0.3.</span>
+<span class="sd">            optimize_intent_threshold: When this flag is set, the value of :obj:`intent_threshold`</span>
+<span class="sd">                is ignored. Instead, the threshold is automatically optimized for each data set</span>
+<span class="sd">                during a few additional training iterations.</span>
+<span class="sd">            optimizer_iterations: The number of iterations to repeat and average the threshold</span>
+<span class="sd">                optimization. Defaults to 5.</span>
+<span class="sd">            optimizer_grid_search_step_size: The step size for the grid search over the threshold.</span>
+<span class="sd">                The optimal threshold is searched for in a window from 0 to 1, so a step size of</span>
+<span class="sd">                e.g. 0.01 means that 100 different values are tested.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__intent_threshold</span> <span class="o">=</span> <span class="n">intent_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__optimize_intent_threshold</span> <span class="o">=</span> <span class="n">optimize_intent_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer_iterations</span> <span class="o">=</span> <span class="n">optimizer_iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer_grid_search_step_size</span> <span class="o">=</span> <span class="n">optimizer_grid_search_step_size</span></div>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">prepareDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_set</span><span class="p">:</span> <span class="n">NLUDataSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepareDataSet</span><span class="p">(</span><span class="n">data_set</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__optimize_intent_threshold</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__intent_threshold</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Set the threshold to 0 during the optimization</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__intent_threshold</span> <span class="o">=</span> <span class="k">await</span> <span class="n">IntentThresholdOptimizer</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">data_set</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer_iterations</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__optimizer_grid_search_step_size</span>
+            <span class="p">)</span>
+
+    <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+<div class="viewcode-block" id="OptimizableNLUFramework._prepareDataSet"><a class="viewcode-back" href="../../sources/nlutestframework/optimizable_nlu_framework.html#nlutestframework.optimizable_nlu_framework.OptimizableNLUFramework._prepareDataSet">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">_prepareDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_set</span><span class="p">:</span> <span class="n">NLUDataSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data_set: The data set that will be benchmarked next.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span></div>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">rateIntents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NLUIntentRating</span><span class="p">:</span>
+        <span class="n">rating</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rateIntents</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+
+        <span class="n">rating</span><span class="o">.</span><span class="n">noneIfBelow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__intent_threshold</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rating</span>
+
+<div class="viewcode-block" id="OptimizableNLUFramework._rateIntents"><a class="viewcode-back" href="../../sources/nlutestframework/optimizable_nlu_framework.html#nlutestframework.optimizable_nlu_framework.OptimizableNLUFramework._rateIntents">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">_rateIntents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NLUIntentRating</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            sentence: A sentence to find intents and entities for.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The intent rating information as returned by the framework.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;To be implemented by subclasses.&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,380 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>nlutestframework.implementations.rasa_nlu_framework &mdash; NLUTestFramework  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> NLUTestFramework
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/nlu_frameworks.html">List of Built-In NLU Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/nlutestframework/package.html">API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">NLUTestFramework</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>nlutestframework.implementations.rasa_nlu_framework</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for nlutestframework.implementations.rasa_nlu_framework</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+
+<span class="kn">import</span> <span class="nn">docker</span>
+<span class="kn">from</span> <span class="nn">langcodes</span> <span class="kn">import</span> <span class="n">Language</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">..nlu_intent_rating</span> <span class="kn">import</span> <span class="n">NLUIntentRating</span>
+<span class="kn">from</span> <span class="nn">..optimizable_nlu_framework</span> <span class="kn">import</span> <span class="n">OptimizableNLUFramework</span>
+
+<span class="c1"># Other imports only for the type hints</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">..global_config</span> <span class="kn">import</span> <span class="n">GlobalConfig</span>
+<span class="kn">from</span> <span class="nn">..nlu_data_entry</span> <span class="kn">import</span> <span class="n">NLUDataEntry</span>
+<span class="kn">from</span> <span class="nn">..nlu_data_set</span> <span class="kn">import</span> <span class="n">NLUDataSet</span>
+
+<span class="k">def</span> <span class="nf">_raise_for_status</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check the status code of the response. If the status code suggests an error, log the response as</span>
+<span class="sd">    JSON and then raise an exception. Otherwise, return the response for further processing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        response: The response to an HTTP request by the &quot;requests&quot; library.</span>
+<span class="sd">        logger: The logger to log errors with.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The response, in case it didn&#39;t fail.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        :exc:`requests.exceptions.HTTPError`: if the response indicates an error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span>
+
+<div class="viewcode-block" id="RasaNLUFramework"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/rasa_nlu_framework.html#nlutestframework.implementations.rasa_nlu_framework.RasaNLUFramework">[docs]</a><span class="k">class</span> <span class="nc">RasaNLUFramework</span><span class="p">(</span><span class="n">OptimizableNLUFramework</span><span class="p">):</span>
+    <span class="n">__VERSION</span> <span class="o">=</span> <span class="s2">&quot;latest&quot;</span>
+
+    <span class="c1"># pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="RasaNLUFramework.construct"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/rasa_nlu_framework.html#nlutestframework.implementations.rasa_nlu_framework.RasaNLUFramework.construct">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span> <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">_global_config</span><span class="p">:</span> <span class="n">GlobalConfig</span><span class="p">,</span>
+        <span class="n">pipeline</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            _global_config: Global configuration for the whole test framework.</span>
+<span class="sd">            pipeline: The pipeline to use by Rasa NLU. Must be either &quot;supervised&quot; or &quot;pretrained&quot;.</span>
+<span class="sd">                See https://rasa.com/docs/rasa/nlu/choosing-a-pipeline/ for details.</span>
+<span class="sd">            timeout: The time in seconds to wait for the Rasa HTTP server to start. Defaults to 10.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pipeline</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;supervised&quot;</span><span class="p">,</span> <span class="s2">&quot;pretrained&quot;</span> <span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The pipeline must be specified as either supervised or pretrained.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># TODO: Pipeline flexible aka based on the number of training samples?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__pipeline</span> <span class="o">=</span> <span class="n">pipeline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__timeout</span>  <span class="o">=</span> <span class="n">timeout</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating a client for the Docker daemon...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__docker</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span></div>
+
+    <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_prepareDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_set</span><span class="p">:</span> <span class="n">NLUDataSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">language</span> <span class="o">=</span> <span class="n">Language</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_set</span><span class="o">.</span><span class="n">language</span><span class="p">)</span><span class="o">.</span><span class="n">language</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pipeline</span> <span class="o">==</span> <span class="s2">&quot;supervised&quot;</span><span class="p">:</span>
+            <span class="n">pipeline_config</span> <span class="o">=</span> <span class="s2">&quot;supervised_embeddings&quot;</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;rasa/rasa:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__VERSION</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pipeline</span> <span class="o">==</span> <span class="s2">&quot;pretrained&quot;</span><span class="p">:</span>
+            <span class="n">pipeline_config</span> <span class="o">=</span> <span class="s2">&quot;pretrained_embeddings_spacy&quot;</span>
+            <span class="c1"># In theory it should be enough to install rasa/rasa:latest-spacy-{language}, but in</span>
+            <span class="c1"># practice the training fails in these images due to the spaCy models not being found.</span>
+            <span class="c1"># This bug is reported in the Rasa repo: https://github.com/RasaHQ/rasa/issues/4789</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;rasa/rasa:</span><span class="si">{}</span><span class="s2">-spacy-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__VERSION</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span>
+
+        <span class="c1"># Create the Rasa config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__rasa_config_yml</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span> <span class="s2">&quot;language&quot;</span><span class="p">:</span> <span class="n">language</span><span class="p">,</span> <span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="n">pipeline_config</span> <span class="p">})</span>
+
+        <span class="c1"># Connect to the Docker daemon and pull the Rasa container</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing the docker container for Rasa...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Pulling Rasa image </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__docker</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting the Rasa HTTP server...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__docker</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">image</span><span class="p">,</span>
+
+            <span class="c1"># Run the Rasa server and enable the HTTP API</span>
+            <span class="p">[</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;--enable-api&quot;</span> <span class="p">],</span>
+
+            <span class="c1"># Automatically remove the container after the server shuts down</span>
+            <span class="n">auto_remove</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+            <span class="c1"># Don&#39;t wait for the command to finish</span>
+            <span class="n">detach</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+            <span class="c1"># Expose port 5005 (used for HTTP by Rasa) for TCP traffic to a random port</span>
+            <span class="n">ports</span><span class="o">=</span><span class="p">{</span> <span class="s2">&quot;5005/tcp&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update the container information from the Docker daemon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__container</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+
+        <span class="c1"># Extract the port mapping and build the base url for the HTTP API</span>
+        <span class="n">port_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__container</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;NetworkSettings&quot;</span><span class="p">][</span><span class="s2">&quot;Ports&quot;</span><span class="p">][</span><span class="s2">&quot;5005/tcp&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__url</span> <span class="o">=</span> <span class="s2">&quot;http://</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port_mapping</span><span class="p">[</span><span class="s2">&quot;HostIp&quot;</span><span class="p">],</span> <span class="n">port_mapping</span><span class="p">[</span><span class="s2">&quot;HostPort&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Waiting for the health endpoint to come alive...&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__timeout</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__url</span><span class="p">)</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+            <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Container running.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RasaNLUFramework.unprepareDataSet"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/rasa_nlu_framework.html#nlutestframework.implementations.rasa_nlu_framework.RasaNLUFramework.unprepareDataSet">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">unprepareDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__container</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rasa_config_yml</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__container</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__url</span></div>
+
+    <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
+<div class="viewcode-block" id="RasaNLUFramework.train"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/rasa_nlu_framework.html#nlutestframework.implementations.rasa_nlu_framework.RasaNLUFramework.train">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NLUDataEntry</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Build the training data structure as required by Rasa</span>
+        <span class="n">training_markdown</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">intent</span> <span class="ow">in</span> <span class="p">{</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">training_data</span> <span class="p">}:</span>
+            <span class="n">training_markdown</span> <span class="o">+=</span> <span class="s2">&quot;## intent:</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">intent</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">intent</span><span class="o">=</span><span class="n">intent</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">intent</span> <span class="o">==</span> <span class="n">intent</span><span class="p">,</span> <span class="c1"># type: ignore</span>
+            <span class="n">training_data</span><span class="p">):</span>
+                <span class="n">training_markdown</span> <span class="o">+=</span> <span class="s2">&quot;- </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">sentence</span><span class="p">)</span>
+
+            <span class="n">training_markdown</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Training a model...&quot;</span><span class="p">)</span>
+        <span class="n">training_response</span> <span class="o">=</span> <span class="n">_raise_for_status</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__url</span> <span class="o">+</span> <span class="s2">&quot;model/train&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;config&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rasa_config_yml</span><span class="p">,</span>
+            <span class="s2">&quot;nlu&quot;</span>    <span class="p">:</span> <span class="n">training_markdown</span><span class="p">,</span>
+            <span class="s2">&quot;force&quot;</span>  <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;save_to_default_model_directory&quot;</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="p">}),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">training_response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Model file name: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Selecting the newly trained model...&quot;</span><span class="p">)</span>
+        <span class="n">_raise_for_status</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__url</span> <span class="o">+</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;model_file&quot;</span><span class="p">:</span> <span class="s2">&quot;models/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="p">}),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Training completed.&quot;</span><span class="p">)</span></div>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_rateIntents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NLUIntentRating</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">_raise_for_status</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__url</span> <span class="o">+</span> <span class="s2">&quot;model/parse&quot;</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">=</span><span class="p">{</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">sentence</span> <span class="p">}</span>
+        <span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">NLUIntentRating</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="p">[</span> <span class="p">(</span>
+            <span class="n">rated_intent</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+            <span class="n">rated_intent</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">]</span>
+        <span class="p">)</span> <span class="k">for</span> <span class="n">rated_intent</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;intent_ranking&quot;</span><span class="p">]</span> <span class="p">])</span>
+
+<div class="viewcode-block" id="RasaNLUFramework.cleanupTraining"><a class="viewcode-back" href="../../../sources/nlutestframework/implementations/rasa_nlu_framework.html#nlutestframework.implementations.rasa_nlu_framework.RasaNLUFramework.cleanupTraining">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">cleanupTraining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_raise_for_status</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__url</span> <span class="o">+</span> <span class="s2">&quot;model&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, eMundo GmbH
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
